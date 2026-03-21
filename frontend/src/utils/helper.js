@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 // Auth change listeners array
 let authChangeListeners = [];
@@ -34,7 +37,7 @@ export const authenticate = async (data, next) => {
     // Notify listeners about auth change
     notifyAuthChange(userData);
     
-    if (next) next();
+    if (next) await next();
   } catch (error) {
     console.error('Error storing auth data', error);
   }
@@ -77,6 +80,19 @@ export const isAuthenticated = async () => {
 // Logout
 export const logout = async (navigation) => {
   try {
+    const token = await AsyncStorage.getItem('token');
+    if (token && BACKEND_URL) {
+      try {
+        await axios.delete(`${BACKEND_URL}/api/v1/users/push-token`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error) {
+        console.error('Error removing push token during logout', error?.response?.data || error.message);
+      }
+    }
+
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
     

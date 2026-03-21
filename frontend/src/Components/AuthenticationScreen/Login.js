@@ -27,23 +27,21 @@ export default function LoginScreen({ navigation }) {
   const { resetWishlist, fetchWishlist } = useWishlist();
 
   const completeLogin = async (data, successMessage = 'Login successful') => {
-    await authenticate(data, async () => {
-      Alert.alert('Success', successMessage);
+    await authenticate(data);
 
-      resetWishlist();
-      await fetchWishlist();
+    resetWishlist();
+    await fetchWishlist();
 
-      setTimeout(async () => {
-        console.log('Attempting to register push token after login...');
-        const token = await registerForPushNotificationsAsync();
+    console.log('Attempting to register push token after login...');
+    const token = await registerForPushNotificationsAsync();
 
-        if (token) {
-          console.log('Push token registered successfully:', token);
-        } else {
-          console.log('Push token registration returned null');
-        }
-      }, 1000);
-    });
+    if (token) {
+      console.log('Push token registered successfully:', token);
+    } else {
+      console.log('Push token registration returned null');
+    }
+
+    Alert.alert('Success', successMessage);
   };
 
   const handleLogin = async () => {

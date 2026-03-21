@@ -106,6 +106,8 @@ export async function registerForPushNotificationsAsync() {
     // Step 7: Save to backend
     console.log('Step 7: Saving token to backend...');
     const backendUrl = `${BACKEND_URL}/api/v1/users/push-token`;
+    console.log('Push token save URL:', backendUrl);
+    console.log('Push token being sent to backend:', token);
     
     const response = await axios.post(
       backendUrl,
@@ -119,6 +121,7 @@ export async function registerForPushNotificationsAsync() {
     );
     
     console.log('✅ Backend response:', response.status);
+    console.log('Backend response body:', response.data);
     
     // Step 8: Verify token was saved
     console.log('Step 8: Verifying token in database...');
@@ -128,6 +131,16 @@ export async function registerForPushNotificationsAsync() {
     );
     
     console.log('Token in DB:', verifyResponse.data.pushToken ? '✅ Present' : '❌ Missing');
+    console.log('Token returned by backend:', verifyResponse.data.pushToken || 'none');
+
+    const tokenSavedProperly = verifyResponse.data.pushToken === token;
+    if (tokenSavedProperly) {
+      console.log('✅ Push token saved properly to backend and verified successfully');
+    } else {
+      console.log('❌ Push token mismatch: backend token does not match device token');
+      console.log('Expected device token:', token);
+      console.log('Actual backend token:', verifyResponse.data.pushToken || 'none');
+    }
 
     console.log('========== PUSH NOTIFICATION REGISTRATION END ==========');
     return token;
