@@ -13,6 +13,13 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { authenticate } from '../../utils/helper';
+import { registerForPushNotificationsAsync } from '../../hooks/usePushNotifications';
+import { useWishlist } from '../../context/WishlistContext';
+import {
+  getGoogleAuthErrorMessage,
+  signInWithGoogle,
+} from '../../utils/googleAuth';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -24,7 +31,10 @@ export default function RegisterScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const { resetWishlist, fetchWishlist } = useWishlist();
 
   const validateForm = () => {
     const newErrors = {};
@@ -54,44 +64,69 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
     try {
       const apiUrl = `${BACKEND_URL}/api/v1/users/register`;
-      console.log('Calling API:', apiUrl);
-      
-      const res = await axios.post(apiUrl, { 
-        name: name.trim(), 
-        email: email.trim().toLowerCase(), 
-        password 
+      await axios.post(apiUrl, {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
       });
-      
-      console.log('✅ Registration successful:', res.data);
-      
+
       Alert.alert(
-        'Success', 
+        'Success',
         'Registration successful! Please check your email for verification.',
-        [
-          { 
-            text: 'OK', 
-            onPress: () => navigation.navigate('Login') 
-          }
-        ]
+        [{ text: 'OK', onPress: () => navigation.navigate('Login') }],
       );
     } catch (error) {
-      console.error('❌ Registration error:', error);
-      
+      console.error('Registration error:', error);
+
       let errorMessage = 'Registration failed';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       }
-      
+
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const completeGoogleAuth = async (data) => {
+    await authenticate(data, async () => {
+      Alert.alert('Success', 'Google account connected successfully');
+
+      resetWishlist();
+      await fetchWishlist();
+
+      setTimeout(async () => {
+        await registerForPushNotificationsAsync();
+      }, 1000);
+    });
+  };
+
+  const handleGoogleRegister = async () => {
+    setGoogleLoading(true);
+    try {
+      const authData = await signInWithGoogle();
+      if (!authData) {
+        return;
+      }
+
+      await completeGoogleAuth(authData);
+    } catch (error) {
+      const message = getGoogleAuthErrorMessage(error);
+      if (message) {
+        Alert.alert('Google Sign-In Failed', message);
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -100,14 +135,13 @@ export default function RegisterScreen({ navigation }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Header with Back Button */}
           <View style={styles.header}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.backButton}
             >
@@ -117,7 +151,6 @@ export default function RegisterScreen({ navigation }) {
             <View style={styles.placeholder} />
           </View>
 
-          {/* Logo or Icon */}
           <View style={styles.logoContainer}>
             <View style={styles.iconCircle}>
               <Icon name="person-add" size={40} color="#6200ee" />
@@ -125,9 +158,7 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.tagline}>Join C&V PetShop Family</Text>
           </View>
 
-          {/* Registration Form */}
           <View style={styles.formContainer}>
-            {/* Name Input */}
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Full Name</Text>
               <View style={[styles.inputContainer, errors.name && styles.inputError]}>
@@ -137,7 +168,9 @@ export default function RegisterScreen({ navigation }) {
                   value={name}
                   onChangeText={(text) => {
                     setName(text);
-                    if (errors.name) setErrors({ ...errors, name: null });
+                    if (errors.name) {
+                      setErrors({ ...errors, name: null });
+                    }
                   }}
                   style={styles.input}
                   placeholderTextColor="#999"
@@ -146,7 +179,6 @@ export default function RegisterScreen({ navigation }) {
               {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
             </View>
 
-            {/* Email Input */}
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Email Address</Text>
               <View style={[styles.inputContainer, errors.email && styles.inputError]}>
@@ -156,7 +188,9 @@ export default function RegisterScreen({ navigation }) {
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);
-                    if (errors.email) setErrors({ ...errors, email: null });
+                    if (errors.email) {
+                      setErrors({ ...errors, email: null });
+                    }
                   }}
                   autoCapitalize="none"
                   keyboardType="email-address"
@@ -167,27 +201,30 @@ export default function RegisterScreen({ navigation }) {
               {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
             </View>
 
-            {/* Password Input */}
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+              <View
+                style={[styles.inputContainer, errors.password && styles.inputError]}
+              >
                 <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   placeholder="Create a password"
                   value={password}
                   onChangeText={(text) => {
                     setPassword(text);
-                    if (errors.password) setErrors({ ...errors, password: null });
+                    if (errors.password) {
+                      setErrors({ ...errors, password: null });
+                    }
                   }}
                   secureTextEntry={!showPassword}
                   style={[styles.input, { flex: 1 }]}
                   placeholderTextColor="#999"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Icon 
-                    name={showPassword ? "visibility" : "visibility-off"} 
-                    size={20} 
-                    color="#666" 
+                  <Icon
+                    name={showPassword ? 'visibility' : 'visibility-off'}
+                    size={20}
+                    color="#666"
                   />
                 </TouchableOpacity>
               </View>
@@ -195,34 +232,43 @@ export default function RegisterScreen({ navigation }) {
               <Text style={styles.hintText}>Minimum 6 characters</Text>
             </View>
 
-            {/* Confirm Password Input */}
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Confirm Password</Text>
-              <View style={[styles.inputContainer, errors.confirmPassword && styles.inputError]}>
+              <View
+                style={[
+                  styles.inputContainer,
+                  errors.confirmPassword && styles.inputError,
+                ]}
+              >
                 <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   placeholder="Confirm your password"
                   value={confirmPassword}
                   onChangeText={(text) => {
                     setConfirmPassword(text);
-                    if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: null });
+                    if (errors.confirmPassword) {
+                      setErrors({ ...errors, confirmPassword: null });
+                    }
                   }}
                   secureTextEntry={!showConfirmPassword}
                   style={[styles.input, { flex: 1 }]}
                   placeholderTextColor="#999"
                 />
-                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Icon 
-                    name={showConfirmPassword ? "visibility" : "visibility-off"} 
-                    size={20} 
-                    color="#666" 
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Icon
+                    name={showConfirmPassword ? 'visibility' : 'visibility-off'}
+                    size={20}
+                    color="#666"
                   />
                 </TouchableOpacity>
               </View>
-              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+              {errors.confirmPassword && (
+                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              )}
             </View>
 
-            {/* Terms and Conditions */}
             <View style={styles.termsContainer}>
               <Icon name="info-outline" size={16} color="#666" />
               <Text style={styles.termsText}>
@@ -232,11 +278,10 @@ export default function RegisterScreen({ navigation }) {
               </Text>
             </View>
 
-            {/* Register Button */}
             <TouchableOpacity
               style={styles.registerButton}
               onPress={handleRegister}
-              disabled={loading}
+              disabled={loading || googleLoading}
             >
               {loading ? (
                 <ActivityIndicator color="white" />
@@ -245,7 +290,29 @@ export default function RegisterScreen({ navigation }) {
               )}
             </TouchableOpacity>
 
-            {/* Login Link */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleRegister}
+              disabled={loading || googleLoading}
+            >
+              {googleLoading ? (
+                <ActivityIndicator color="#333" />
+              ) : (
+                <>
+                  <View style={styles.googleBadge}>
+                    <Text style={styles.googleBadgeText}>G</Text>
+                  </View>
+                  <Text style={styles.googleButtonText}>Continue with Google</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
             <View style={styles.loginContainer}>
               <Text style={styles.loginText}>Already have an account? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -387,6 +454,53 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#888',
+    fontSize: 13,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+  },
+  googleBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  googleBadgeText: {
+    color: '#4285F4',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  googleButtonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: '600',
   },
   loginContainer: {
     flexDirection: 'row',

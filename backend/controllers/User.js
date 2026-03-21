@@ -1,8 +1,20 @@
 const User = require('../models/User');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/Cloudinary');
 const Mailer = require('../utils/Mailer');
 const admin = require('../utils/firebaseAdmin');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_WEB_CLIENT_ID);
+
+const buildGoogleAvatar = (name, email, picture, subject) => ({
+  public_id: `google_${subject}`,
+  url:
+    picture ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      name || email.split('@')[0],
+    )}&background=random&color=fff&size=150`,
+});
 
 // ========== REGISTER USER ========== 
 exports.registerUser = async (req, res) => {
@@ -110,6 +122,118 @@ exports.loginUser = async (req, res) => {
   } catch (error) {
     console.error('❌ LOGIN ERROR:', error);
     res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
+  }
+};
+
+// ========== GOOGLE LOGIN / REGISTER (DIRECT GOOGLE TOKEN) ==========
+exports.googleAuth = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!process.env.GOOGLE_WEB_CLIENT_ID) {
+      return res.status(500).json({
+        success: false,
+        message: 'Google authentication is not configured on the server',
+      });
+    }
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google ID token is required',
+      });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_WEB_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload?.email || !payload?.sub) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Google account data',
+      });
+    }
+
+    if (payload.email_verified === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Google account email is not verified',
+      });
+    }
+
+    const email = payload.email.toLowerCase();
+    const name = payload.name || email.split('@')[0];
+    const avatar = buildGoogleAvatar(name, email, payload.picture, payload.sub);
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: payload.sub,
+        avatar,
+        isVerified: true,
+        isActive: true,
+        authProvider: 'google',
+      });
+    } else {
+      let shouldSave = false;
+
+      if (!user.isVerified) {
+        user.isVerified = true;
+        shouldSave = true;
+      }
+
+      if (!user.avatar?.url) {
+        user.avatar = avatar;
+        shouldSave = true;
+      }
+
+      if (user.authProvider === 'google') {
+        user.avatar = avatar;
+        shouldSave = true;
+      }
+
+      if (shouldSave) {
+        await user.save({ validateBeforeSave: false });
+      }
+    }
+
+    if (user.isDeleted) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deleted. Please contact support.',
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account is inactive. Please contact support.',
+      });
+    }
+
+    const token = user.getJwtToken();
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: userResponse,
+      message: 'Google authentication successful',
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    return res.status(401).json({
+      success: false,
+      message: 'Google authentication failed',
+    });
   }
 };
 

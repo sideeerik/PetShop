@@ -9,13 +9,16 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Image
 } from 'react-native';
 import axios from 'axios';
 import { authenticate } from '../../utils/helper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { registerForPushNotificationsAsync } from '../../hooks/usePushNotifications';
-import { useWishlist } from '../../context/WishlistContext'; // Add this import
+import { useWishlist } from '../../context/WishlistContext';
+import {
+  getGoogleAuthErrorMessage,
+  signInWithGoogle,
+} from '../../utils/googleAuth';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -23,10 +26,30 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
-  // Get wishlist context functions
+
   const { resetWishlist, fetchWishlist } = useWishlist();
+
+  const completeLogin = async (data, successMessage = 'Login successful') => {
+    await authenticate(data, async () => {
+      Alert.alert('Success', successMessage);
+
+      resetWishlist();
+      await fetchWishlist();
+
+      setTimeout(async () => {
+        console.log('Attempting to register push token after login...');
+        const token = await registerForPushNotificationsAsync();
+
+        if (token) {
+          console.log('Push token registered successfully:', token);
+        } else {
+          console.log('Push token registration returned null');
+        }
+      }, 1000);
+    });
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,40 +60,32 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       const apiUrl = `${BACKEND_URL}/api/v1/users/login`;
-      console.log('Calling API:', apiUrl);
-      
       const res = await axios.post(apiUrl, { email, password });
-      
-      console.log('✅ Login successful:', res.data);
-      
-      // Save token and user info
-      await authenticate(res.data, async () => {
-        Alert.alert('Success', 'Login successful');
-        
-        // IMPORTANT: Reset wishlist to clear previous user's data
-        resetWishlist();
-        
-        // Fetch wishlist for the new user
-        await fetchWishlist();
-        
-        // Register for push notifications after successful login
-        setTimeout(async () => {
-          console.log('Attempting to register push token after login...');
-          const token = await registerForPushNotificationsAsync();
-          
-          if (token) {
-            console.log('✅ Push token registered successfully:', token);
-          } else {
-            console.log('⚠️ Push token registration returned null');
-          }
-        }, 1000);
-      });
-
+      await completeLogin(res.data);
     } catch (error) {
-      console.error('❌ Login error:', error);
+      console.error('Login error:', error);
       Alert.alert('Login Failed', error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const authData = await signInWithGoogle();
+      if (!authData) {
+        return;
+      }
+
+      await completeLogin(authData, 'Google login successful');
+    } catch (error) {
+      const message = getGoogleAuthErrorMessage(error);
+      if (message) {
+        Alert.alert('Google Sign-In Failed', message);
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -80,19 +95,16 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
-        {/* Logo or App Name */}
         <View style={styles.logoContainer}>
           <Icon name="pets" size={80} color="#6200ee" />
           <Text style={styles.appName}>C&V PetShop</Text>
           <Text style={styles.tagline}>Your trusted pet care partner</Text>
         </View>
 
-        {/* Login Form */}
         <View style={styles.formContainer}>
           <Text style={styles.welcomeText}>Welcome Back!</Text>
           <Text style={styles.subtitle}>Sign in to continue</Text>
 
-          {/* Email Input */}
           <View style={styles.inputContainer}>
             <Icon name="email" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
@@ -106,7 +118,6 @@ export default function LoginScreen({ navigation }) {
             />
           </View>
 
-          {/* Password Input */}
           <View style={styles.inputContainer}>
             <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
@@ -118,15 +129,14 @@ export default function LoginScreen({ navigation }) {
               placeholderTextColor="#999"
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Icon 
-                name={showPassword ? "visibility" : "visibility-off"} 
-                size={20} 
-                color="#666" 
+              <Icon
+                name={showPassword ? 'visibility' : 'visibility-off'}
+                size={20}
+                color="#666"
               />
             </TouchableOpacity>
           </View>
 
-          {/* Forgot Password Link */}
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPassword')}
             style={styles.forgotLink}
@@ -134,11 +144,10 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          {/* Login Button */}
           <TouchableOpacity
             style={styles.loginButton}
             onPress={handleLogin}
-            disabled={loading}
+            disabled={loading || googleLoading}
           >
             {loading ? (
               <ActivityIndicator color="white" />
@@ -147,7 +156,29 @@ export default function LoginScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
-          {/* Sign Up Link */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleLogin}
+            disabled={loading || googleLoading}
+          >
+            {googleLoading ? (
+              <ActivityIndicator color="#333" />
+            ) : (
+              <>
+                <View style={styles.googleBadge}>
+                  <Text style={styles.googleBadgeText}>G</Text>
+                </View>
+                <Text style={styles.googleButtonText}>Continue with Google</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -156,7 +187,6 @@ export default function LoginScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>By signing in, you agree to our</Text>
           <View style={styles.footerLinks}>
@@ -258,6 +288,53 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#888',
+    fontSize: 13,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+  },
+  googleBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  googleBadgeText: {
+    color: '#4285F4',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  googleButtonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: '600',
   },
   signUpContainer: {
     flexDirection: 'row',

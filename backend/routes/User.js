@@ -3,6 +3,7 @@ const { uploadWithJson } = require('../utils/Multer');
 const {
   registerUser,
   loginUser,
+  googleAuth,
   updateProfile,
   firebaseGoogleAuth,
   firebaseFacebookAuth,
@@ -22,6 +23,7 @@ const router = express.Router();
 // ================= AUTH =================
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/auth/google', googleAuth);
 
 // ================= PROFILE =================
 router.get('/me', isAuthenticatedUser, async (req, res) => {
