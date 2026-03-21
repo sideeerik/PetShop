@@ -16,8 +16,10 @@ console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✓ S
 // Now import other modules AFTER environment variables are loaded
 const app = require('./app');
 const connectDatabase = require('./config/db');
+const startPushTokenMonitor = require('./utils/pushTokenMonitor');
 
 connectDatabase();
+startPushTokenMonitor();
 
 app.listen(process.env.PORT, () => {
   console.log(`Server started on port: ${process.env.PORT} in ${process.env.NODE_ENV} mode`);
