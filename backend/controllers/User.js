@@ -98,6 +98,10 @@ exports.loginUser = async (req, res) => {
   try {
     console.log('🔐 Login attempt for:', req.body.email);
     const { email, password } = req.body;
+    console.log('=== LOGIN REQUEST RECEIVED ===');
+    console.log('Email:', email || 'missing');
+    console.log('IP:', req.ip || 'unknown');
+    console.log('User-Agent:', req.get('user-agent') || 'unknown');
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Please enter email and password' });
@@ -129,6 +133,10 @@ exports.loginUser = async (req, res) => {
 exports.googleAuth = async (req, res) => {
   try {
     const { idToken } = req.body;
+    console.log('=== GOOGLE LOGIN REQUEST RECEIVED ===');
+    console.log('Has ID token:', !!idToken);
+    console.log('IP:', req.ip || 'unknown');
+    console.log('User-Agent:', req.get('user-agent') || 'unknown');
 
     if (!process.env.GOOGLE_WEB_CLIENT_ID) {
       return res.status(500).json({
