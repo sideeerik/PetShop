@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1018951338698",
+    "project_id": "petshop-c4525",
+    "storage_bucket": "petshop-c4525.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018951338698:android:6514aaae5a57010c0cc233",
+        "android_client_info": {
+          "package_name": "com.cvpetshop.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgN9RRJOJhE376g72th3Owbsq4WQ0wuKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

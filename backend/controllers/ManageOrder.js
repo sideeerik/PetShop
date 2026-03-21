@@ -5,6 +5,14 @@ const { generateOrderEmailTemplate } = require("../utils/emailTemplate");
 const { generateReceiptPDF } = require("../utils/pdfGenerator");
 const { sendPushNotification } = require("../utils/pushNotification");
 
+const ORDER_STATUS_TRANSITIONS = {
+  Processing: ["Accepted", "Cancelled"],
+  Accepted: ["Out for Delivery"],
+  "Out for Delivery": ["Delivered"],
+  Delivered: [],
+  Cancelled: [],
+};
+
 // 🟢 Get all orders (Admin)
 exports.getAllOrders = async (req, res) => {
   try {
@@ -40,13 +48,7 @@ exports.updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = [
-      "Processing",
-      "Accepted",
-      "Cancelled",
-      "Out for Delivery",
-      "Delivered",
-    ];
+    const validStatuses = Object.keys(ORDER_STATUS_TRANSITIONS);
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -60,12 +62,25 @@ exports.updateOrderStatus = async (req, res) => {
     const order = await Order.findById(id)
       .populate({
         path: "user",
-        select: "name email pushToken" // Added + prefix to override schema select:false
+        select: "name email +pushToken"
       })
       .populate("orderItems.product", "name images price"); // Make sure to include images and price
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    const oldStatus = order.orderStatus;
+    const allowedNextStatuses = ORDER_STATUS_TRANSITIONS[oldStatus] || [];
+
+    if (!allowedNextStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          allowedNextStatuses.length > 0
+            ? `Invalid status transition. ${oldStatus} can only change to: ${allowedNextStatuses.join(", ")}.`
+            : `Orders with status ${oldStatus} cannot be changed anymore.`,
+      });
     }
 
     // Log user data for debugging
@@ -77,7 +92,6 @@ exports.updateOrderStatus = async (req, res) => {
       pushTokenValue: order.user?.pushToken ? `${order.user.pushToken.substring(0, 20)}...` : 'none'
     });
 
-    const oldStatus = order.orderStatus;
     order.orderStatus = status;
     
     if (status === "Delivered") {

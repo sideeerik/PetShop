@@ -29,6 +29,14 @@ const ORDER_STATUSES = [
   { label: 'Cancelled', value: 'Cancelled', color: '#e74c3c' },
 ];
 
+const ORDER_STATUS_TRANSITIONS = {
+  Processing: ['Accepted', 'Cancelled'],
+  Accepted: ['Out for Delivery'],
+  'Out for Delivery': ['Delivered'],
+  Delivered: [],
+  Cancelled: [],
+};
+
 export default function UpdateOrderScreen({ route, navigation }) {
   const { orderId } = route.params;
   const dispatch = useDispatch();
@@ -49,7 +57,8 @@ export default function UpdateOrderScreen({ route, navigation }) {
 
   useEffect(() => {
     if (order) {
-      setSelectedStatus(order.orderStatus);
+      const nextStatuses = ORDER_STATUS_TRANSITIONS[order.orderStatus] || [];
+      setSelectedStatus(nextStatuses[0] || '');
     }
   }, [order]);
 
@@ -103,6 +112,12 @@ export default function UpdateOrderScreen({ route, navigation }) {
     const statusObj = ORDER_STATUSES.find(s => s.value === status);
     return statusObj?.label || status;
   };
+
+  const availableStatuses = ORDER_STATUSES.filter((status) =>
+    (ORDER_STATUS_TRANSITIONS[order?.orderStatus] || []).includes(status.value)
+  );
+
+  const hasAvailableStatusUpdates = availableStatuses.length > 0;
 
   const handleLogout = async () => {
     Alert.alert(
@@ -176,12 +191,14 @@ export default function UpdateOrderScreen({ route, navigation }) {
           {/* Dropdown Button */}
           <TouchableOpacity 
             style={styles.dropdownButton}
-            onPress={() => setDropdownVisible(true)}
-            disabled={loading}
+            onPress={() => hasAvailableStatusUpdates && setDropdownVisible(true)}
+            disabled={loading || !hasAvailableStatusUpdates}
           >
             <View style={styles.dropdownContent}>
-              <View style={[styles.statusDot, { backgroundColor: getStatusColor(selectedStatus) }]} />
-              <Text style={styles.dropdownText}>{getStatusLabel(selectedStatus)}</Text>
+              <View style={[styles.statusDot, { backgroundColor: getStatusColor(selectedStatus || order.orderStatus) }]} />
+              <Text style={styles.dropdownText}>
+                {hasAvailableStatusUpdates ? getStatusLabel(selectedStatus) : 'No more status changes allowed'}
+              </Text>
             </View>
             <Icon name="arrow-drop-down" size={24} color="#666" />
           </TouchableOpacity>
@@ -206,7 +223,7 @@ export default function UpdateOrderScreen({ route, navigation }) {
                   </TouchableOpacity>
                 </View>
                 <FlatList
-                  data={ORDER_STATUSES}
+                  data={availableStatuses}
                   keyExtractor={(item) => item.value}
                   renderItem={({ item }) => (
                     <TouchableOpacity
@@ -248,7 +265,9 @@ export default function UpdateOrderScreen({ route, navigation }) {
         <View style={styles.infoCard}>
           <Icon name="info" size={20} color="#3498db" />
           <Text style={styles.infoNote}>
-            Updating the order status will automatically send an email notification to the customer.
+            {hasAvailableStatusUpdates
+              ? `Only valid next statuses are available from ${order.orderStatus}. Updating the order status will automatically send an email notification to the customer.`
+              : `Orders with status ${order.orderStatus} cannot be changed anymore.`}
             {selectedStatus === 'Delivered' && ' A PDF receipt will be attached to the email.'}
           </Text>
         </View>
@@ -267,10 +286,10 @@ export default function UpdateOrderScreen({ route, navigation }) {
             style={[
               styles.button, 
               styles.updateButton,
-              (selectedStatus === order.orderStatus || loading) && styles.disabledButton
+              (!hasAvailableStatusUpdates || !selectedStatus || loading) && styles.disabledButton
             ]}
             onPress={handleUpdateStatus}
-            disabled={selectedStatus === order.orderStatus || loading}
+            disabled={!hasAvailableStatusUpdates || !selectedStatus || loading}
           >
             <Icon name="update" size={20} color="white" />
             <Text style={styles.updateButtonText}>

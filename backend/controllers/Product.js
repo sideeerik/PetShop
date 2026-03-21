@@ -44,7 +44,7 @@ const checkAndSendRestockNotifications = async (productId, oldStock, newStock) =
             // Get all wishlists containing this product and populate user data
             const wishlists = await Wishlist.find({
                 'items.product': productId
-            }).populate('user', 'pushToken name email');
+            }).populate('user', 'name email +pushToken');
             
             console.log(`Found ${wishlists.length} users with this product in wishlist`);
             
@@ -421,7 +421,7 @@ exports.updateProduct = async (req, res, next) => {
         const users = await User.find({ 
           pushToken: { $exists: true, $ne: null },
           isActive: true 
-        }).select('pushToken');
+        }).select('+pushToken');
         
         console.log(`Found ${users.length} users with push tokens`);
 
@@ -771,4 +771,3 @@ exports.getDiscountNotifications = async (req, res, next) => {
         });
     }
 };
-
