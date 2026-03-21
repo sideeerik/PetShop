@@ -3,7 +3,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../AuthenticationScreen/Login';
 import Register from '../AuthenticationScreen/Register';
-import ForgotPassword from '../AuthenticationScreen/ForgotPassword';
 import LandingPage from '../AuthenticationScreen/LandingPage';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +22,6 @@ export default function AuthenticationStack() {
       <Stack.Screen name="LandingPage" component={LandingPage} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
     </Stack.Navigator>
   );
 }

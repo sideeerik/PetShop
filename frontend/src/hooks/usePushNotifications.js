@@ -71,8 +71,10 @@ export async function registerForPushNotificationsAsync() {
     console.log('Step 4: Getting Expo project ID...');
     
     // IMPORTANT: Fix your project ID in app.json first!
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId || 
-                      Constants.expoConfig?.projectId;
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ||
+      Constants.easConfig?.projectId ||
+      Constants.expoConfig?.projectId;
     
     console.log('Project ID:', projectId || 'NOT FOUND');
     

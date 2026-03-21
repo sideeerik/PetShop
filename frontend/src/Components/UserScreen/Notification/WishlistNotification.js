@@ -222,8 +222,10 @@ export default function WishlistNotification() {
         console.log('✅ Android channel created');
       }
 
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId || 
-                        Constants.expoConfig?.projectId;
+      const projectId =
+        Constants.expoConfig?.extra?.eas?.projectId ||
+        Constants.easConfig?.projectId ||
+        Constants.expoConfig?.projectId;
       
       console.log('Project ID:', projectId || 'NOT FOUND');
       setDebugInfo(`Project ID: ${projectId || 'NOT FOUND'}`);

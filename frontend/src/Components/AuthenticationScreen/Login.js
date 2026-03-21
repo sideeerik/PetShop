@@ -15,10 +15,6 @@ import { authenticate } from '../../utils/helper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { registerForPushNotificationsAsync } from '../../hooks/usePushNotifications';
 import { useWishlist } from '../../context/WishlistContext';
-import {
-  getGoogleAuthErrorMessage,
-  signInWithGoogle,
-} from '../../utils/googleAuth';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -26,7 +22,6 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const { resetWishlist, fetchWishlist } = useWishlist();
@@ -67,25 +62,6 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('Login Failed', error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    try {
-      const authData = await signInWithGoogle();
-      if (!authData) {
-        return;
-      }
-
-      await completeLogin(authData, 'Google login successful');
-    } catch (error) {
-      const message = getGoogleAuthErrorMessage(error);
-      if (message) {
-        Alert.alert('Google Sign-In Failed', message);
-      }
-    } finally {
-      setGoogleLoading(false);
     }
   };
 
@@ -138,44 +114,14 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('ForgotPassword')}
-            style={styles.forgotLink}
-          >
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
             style={styles.loginButton}
             onPress={handleLogin}
-            disabled={loading || googleLoading}
+            disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="white" />
             ) : (
               <Text style={styles.loginButtonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleLogin}
-            disabled={loading || googleLoading}
-          >
-            {googleLoading ? (
-              <ActivityIndicator color="#333" />
-            ) : (
-              <>
-                <View style={styles.googleBadge}>
-                  <Text style={styles.googleBadgeText}>G</Text>
-                </View>
-                <Text style={styles.googleButtonText}>Continue with Google</Text>
-              </>
             )}
           </TouchableOpacity>
 
@@ -269,14 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  forgotLink: {
-    alignSelf: 'flex-end',
-    marginBottom: 20,
-  },
-  forgotText: {
-    color: '#6200ee',
-    fontSize: 14,
-  },
   loginButton: {
     backgroundColor: '#6200ee',
     borderRadius: 10,
@@ -288,53 +226,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#ddd',
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: '#888',
-    fontSize: 13,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    marginBottom: 15,
-  },
-  googleBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  googleBadgeText: {
-    color: '#4285F4',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  googleButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
   },
   signUpContainer: {
     flexDirection: 'row',

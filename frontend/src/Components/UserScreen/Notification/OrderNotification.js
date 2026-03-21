@@ -252,8 +252,10 @@ export default function OrderNotification() {
 
       // Step 4: Get project ID
       console.log('Step 4: Getting Expo project ID...');
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId || 
-                        Constants.expoConfig?.projectId;
+      const projectId =
+        Constants.expoConfig?.extra?.eas?.projectId ||
+        Constants.easConfig?.projectId ||
+        Constants.expoConfig?.projectId;
       
       console.log('Project ID:', projectId || 'NOT FOUND');
       setDebugInfo(`Project ID: ${projectId || 'NOT FOUND'}`);

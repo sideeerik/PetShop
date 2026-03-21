@@ -4,6 +4,18 @@ const { Expo } = require('expo-server-sdk');
 // Create a new Expo SDK client
 const expo = new Expo();
 
+const getChannelIdForNotification = (data = {}) => {
+  if (data.type === 'ORDER_STATUS_UPDATE') {
+    return 'order-updates';
+  }
+
+  if (data.type === 'WISHLIST_RESTOCK') {
+    return 'wishlist-restocks';
+  }
+
+  return 'default';
+};
+
 /**
  * Send push notification to a single device
  * @param {string} pushToken - Expo push token
@@ -33,7 +45,7 @@ exports.sendPushNotification = async (pushToken, title, body, data = {}) => {
       body: body,
       data: data,
       priority: 'high',
-      channelId: 'order-updates', // For Android
+      channelId: getChannelIdForNotification(data),
     };
 
     console.log('📨 Sending push message:', JSON.stringify(message, null, 2));

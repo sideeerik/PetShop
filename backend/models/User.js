@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -81,7 +80,7 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        default: false,
+        default: true,
     },
     
     // ADDED: Push Notification Token
@@ -102,11 +101,6 @@ const userSchema = new mongoose.Schema({
         enum: ['local', 'firebase-email', 'google', 'facebook'], // Added 'facebook'
         default: 'local'
     },
-    // Keep existing fields for backward compatibility
-    emailVerificationToken: String,
-    emailVerificationExpire: Date,
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
     createdAt: {
         type: Date,
         default: Date.now
@@ -138,22 +132,6 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
         return false; // Firebase users don't use local password comparison
     }
     return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Generate password reset token
-userSchema.methods.getResetPasswordToken = function () {
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    this.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 30 mins
-    return resetToken;
-};
-
-// Generate email verification token
-userSchema.methods.getEmailVerificationToken = function () {
-    const verifyToken = crypto.randomBytes(20).toString('hex');
-    this.emailVerificationToken = crypto.createHash('sha256').update(verifyToken).digest('hex');
-    this.emailVerificationExpire = Date.now() + 30 * 60 * 1000; // 30 mins
-    return verifyToken;
 };
 
 module.exports = mongoose.model('User', userSchema);

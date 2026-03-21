@@ -13,13 +13,6 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { authenticate } from '../../utils/helper';
-import { registerForPushNotificationsAsync } from '../../hooks/usePushNotifications';
-import { useWishlist } from '../../context/WishlistContext';
-import {
-  getGoogleAuthErrorMessage,
-  signInWithGoogle,
-} from '../../utils/googleAuth';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -31,10 +24,7 @@ export default function RegisterScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
-  const { resetWishlist, fetchWishlist } = useWishlist();
 
   const validateForm = () => {
     const newErrors = {};
@@ -79,7 +69,7 @@ export default function RegisterScreen({ navigation }) {
 
       Alert.alert(
         'Success',
-        'Registration successful! Please check your email for verification.',
+        'Registration successful. You can now log in.',
         [{ text: 'OK', onPress: () => navigation.navigate('Login') }],
       );
     } catch (error) {
@@ -95,38 +85,6 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const completeGoogleAuth = async (data) => {
-    await authenticate(data, async () => {
-      Alert.alert('Success', 'Google account connected successfully');
-
-      resetWishlist();
-      await fetchWishlist();
-
-      setTimeout(async () => {
-        await registerForPushNotificationsAsync();
-      }, 1000);
-    });
-  };
-
-  const handleGoogleRegister = async () => {
-    setGoogleLoading(true);
-    try {
-      const authData = await signInWithGoogle();
-      if (!authData) {
-        return;
-      }
-
-      await completeGoogleAuth(authData);
-    } catch (error) {
-      const message = getGoogleAuthErrorMessage(error);
-      if (message) {
-        Alert.alert('Google Sign-In Failed', message);
-      }
-    } finally {
-      setGoogleLoading(false);
     }
   };
 
@@ -281,35 +239,12 @@ export default function RegisterScreen({ navigation }) {
             <TouchableOpacity
               style={styles.registerButton}
               onPress={handleRegister}
-              disabled={loading || googleLoading}
+              disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <Text style={styles.registerButtonText}>Create Account</Text>
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity
-              style={styles.googleButton}
-              onPress={handleGoogleRegister}
-              disabled={loading || googleLoading}
-            >
-              {googleLoading ? (
-                <ActivityIndicator color="#333" />
-              ) : (
-                <>
-                  <View style={styles.googleBadge}>
-                    <Text style={styles.googleBadgeText}>G</Text>
-                  </View>
-                  <Text style={styles.googleButtonText}>Continue with Google</Text>
-                </>
               )}
             </TouchableOpacity>
 
@@ -454,53 +389,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#ddd',
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: '#888',
-    fontSize: 13,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    marginBottom: 15,
-  },
-  googleBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  googleBadgeText: {
-    color: '#4285F4',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  googleButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
   },
   loginContainer: {
     flexDirection: 'row',

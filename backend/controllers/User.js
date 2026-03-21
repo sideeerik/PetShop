@@ -1,8 +1,6 @@
 const User = require('../models/User');
-const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/Cloudinary');
-const Mailer = require('../utils/Mailer');
 const admin = require('../utils/firebaseAdmin');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_WEB_CLIENT_ID);
@@ -44,37 +42,13 @@ exports.registerUser = async (req, res) => {
       email,
       password,
       avatar: avatarData,
-      isVerified: false,
+      isVerified: true,
       isActive: true,
       authProvider: 'local'
     });
-
-    // Generate email verification token
-    const verificationToken = user.getEmailVerificationToken();
-    await user.save({ validateBeforeSave: false });
-
-    // ✅ FIXED: include '/users' in the URL
-    const verificationUrl = `${req.protocol}://${req.get('host')}/api/v1/users/verify-email/${verificationToken}`;
-
-    const message = `
-      <h2>Welcome to ${process.env.APP_NAME}</h2>
-      <p>Click the link below to verify your email and activate your account:</p>
-      <a href="${verificationUrl}" target="_blank" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Verify Your Email</a>
-      <br><br>
-      <p>If you didn't request this, please ignore this email.</p>
-      <p><small>Or copy this link: ${verificationUrl}</small></p>
-    `;
-
-    console.log('📨 Sending verification email to local user:', user.email);
-    await Mailer({
-      email: user.email,
-      subject: 'Verify your email - ' + process.env.APP_NAME,
-      message
-    });
-
     res.status(201).json({
       success: true,
-      message: `Registration successful! Verification email sent to ${user.email}. Please verify your email before logging in.`,
+      message: 'Registration successful. You can now log in.',
       user: {
         id: user._id,
         name: user.name,
@@ -111,7 +85,6 @@ exports.loginUser = async (req, res) => {
     if (!user) return res.status(401).json({ message: 'Invalid email or password' });
 
     if (!user.isActive) return res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
-    if (!user.isVerified) return res.status(403).json({ message: 'Please verify your email first.' });
 
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) return res.status(401).json({ message: 'Invalid email or password' });
@@ -378,7 +351,7 @@ exports.updateProfile = async (req, res) => {
         new: true,
         runValidators: true
       }
-    ).select('-password -resetPasswordToken -resetPasswordExpire -emailVerificationToken -emailVerificationExpire');
+    ).select('-password');
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -499,80 +472,6 @@ exports.firebaseFacebookAuth = async (req, res) => {
     res.status(500).json({ success: false, message: 'Facebook authentication failed', error: error.message });
   }
 };
-
-// ========== FORGOT PASSWORD ==========
-exports.forgotPassword = async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).json({ message: 'User not found with this email' });
-
-    const resetToken = user.getResetPasswordToken();
-    await user.save({ validateBeforeSave: false });
-
-    // Use FRONTEND_URL env variable or fallback to localhost
-    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetUrl = `${FRONTEND_URL}/reset-password/${resetToken}`;
-
-    const message = `
-      <h2>Password Reset Request</h2>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetUrl}" target="_blank" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Your Password</a>
-      <br><br>
-      <p>If you did not request this email, please ignore it.</p>
-      <p><small>Or copy this link: ${resetUrl}</small></p>
-    `;
-
-    await Mailer({ email: user.email, subject: 'Password Recovery - ' + process.env.APP_NAME, message });
-
-    res.status(200).json({ success: true, message: `Password reset email sent to: ${user.email}` });
-
-  } catch (error) {
-    console.error('❌ FORGOT PASSWORD ERROR:', error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-
-// ========== RESET PASSWORD ==========
-exports.resetPassword = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    if (!password) {
-      return res.status(400).json({ success: false, message: 'Password is required' });
-    }
-
-    // Hash the token the same way it was hashed when generating reset token
-    const crypto = require('crypto');
-    const resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
-
-    // Find user with this token and check expiration
-    const user = await require('../models/User').findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() } // token not expired
-    });
-
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
-    }
-
-    // Update password
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-
-    res.status(200).json({ success: true, message: 'Password has been reset successfully' });
-  } catch (error) {
-    console.error('❌ RESET PASSWORD ERROR:', error);
-    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
-  }
-};
-
 // ========== CHANGE PASSWORD ==========
 exports.changePassword = async (req, res) => {
   try {
@@ -606,35 +505,6 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-
-// ========== VERIFY EMAIL ==========
-exports.verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
-    if (!token) return res.status(400).send('Verification token missing');
-
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await require('../models/User').findOne({
-      emailVerificationToken: hashedToken,
-      emailVerificationExpire: { $gt: Date.now() },
-    });
-
-    if (!user) return res.status(400).send('Invalid or expired verification token');
-
-    user.isVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpire = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    // Redirect to frontend page
-    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    return res.redirect(`${FRONTEND_URL}/email-verified`);
-  } catch (error) {
-    console.error('❌ EMAIL VERIFICATION ERROR:', error);
-    return res.status(500).send('Server error');
-  }
-};
 
 // ========== SAVE PUSH TOKEN ==========
 exports.savePushToken = async (req, res) => {
