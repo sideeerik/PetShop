@@ -149,6 +149,19 @@ export default function SupplierListScreen({ navigation }) {
   // Main content of SupplierList screen
   const SupplierListContent = () => (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerIconWrap}>
+          <Icon name="warehouse" size={24} color="#7A4B2A" />
+        </View>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Supplier Management</Text>
+          <Text style={styles.headerSubtitle}>
+            {suppliers.length} {suppliers.length === 1 ? 'supplier' : 'suppliers'} available
+          </Text>
+        </View>
+      </View>
+
       <FlatList
         data={suppliers}
         renderItem={renderItem}
@@ -213,53 +226,95 @@ export default function SupplierListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF7F1',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  headerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerSubtitle: {
+    marginTop: 2,
+    fontSize: 14,
+    color: '#7C6555',
   },
   listContent: {
-    padding: 10,
+    padding: 16,
     paddingBottom: 100,
   },
   supplierCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   supplierInfo: {
     flex: 1,
   },
   supplierName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontWeight: '800',
+    marginBottom: 7,
+    color: '#3E2A1F',
   },
   supplierEmail: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 3,
+    color: '#7C6555',
+    marginBottom: 4,
   },
   supplierPhone: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 3,
+    color: '#7C6555',
+    marginBottom: 4,
   },
   supplierAddress: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E7665',
   },
   swipeActions: {
     flexDirection: 'row',
@@ -269,15 +324,15 @@ const styles = StyleSheet.create({
     width: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 18,
     marginLeft: 5,
     height: '100%',
   },
   editButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#B88B65',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   swipeButtonText: {
     color: 'white',
@@ -288,18 +343,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: 80,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 10,
+    fontSize: 18,
+    color: '#7C6555',
+    marginTop: 14,
     marginBottom: 20,
+    fontWeight: '700',
   },
   emptyButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 25,
   },
   emptyButtonText: {
@@ -331,10 +387,10 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   addButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#8B5E3C',
   },
   trashButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   fabLabel: {
     marginLeft: 8,

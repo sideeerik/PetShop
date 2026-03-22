@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,11 +21,21 @@ import {
   clearSuccess,
 } from '../../../redux/slices/orderSlice';
 
+const ORDER_STATUS_TABS = [
+  'All',
+  'Processing',
+  'Accepted',
+  'Out for Delivery',
+  'Delivered',
+  'Cancelled',
+];
+
 export default function OrderListScreen({ navigation }) {
   const dispatch = useDispatch();
   const { items: orders, loading, error, success } = useSelector(
     (state) => state.orders
   );
+  const [selectedStatus, setSelectedStatus] = useState('All');
 
   useEffect(() => {
     loadOrders();
@@ -125,6 +136,19 @@ export default function OrderListScreen({ navigation }) {
     });
   };
 
+  const formatCurrency = (amount) => {
+    const value = Number(amount) || 0;
+    return `\u20B1${value.toLocaleString('en-PH', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const filteredOrders =
+    selectedStatus === 'All'
+      ? orders
+      : orders.filter((order) => order.orderStatus === selectedStatus);
+
   const renderRightActions = (order) => (
     <View style={styles.swipeActions}>
       <TouchableOpacity
@@ -169,8 +193,10 @@ export default function OrderListScreen({ navigation }) {
           </View>
           
           <View style={styles.infoRow}>
-            <Icon name="attach-money" size={16} color="#666" />
-            <Text style={styles.infoText}>₱{item.totalAmount?.toFixed(2)}</Text>
+            <Icon name="payments" size={16} color="#666" />
+            <Text style={styles.infoText}>
+              {formatCurrency(item.totalPrice ?? item.totalAmount ?? item.itemsPrice)}
+            </Text>
           </View>
           
           <View style={styles.infoRow}>
@@ -192,8 +218,48 @@ export default function OrderListScreen({ navigation }) {
 
   const OrderListContent = () => (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerIconWrap}>
+          <Icon name="inventory-2" size={26} color="#7A4B2A" />
+        </View>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Order Management</Text>
+          <Text style={styles.headerSubtitle}>
+            {orders.length} {orders.length === 1 ? 'order' : 'orders'} available
+          </Text>
+        </View>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.tabsScroll}
+        contentContainerStyle={styles.tabsContainer}
+      >
+        {ORDER_STATUS_TABS.map((status) => {
+          const isActive = selectedStatus === status;
+          return (
+            <TouchableOpacity
+              key={status}
+              style={[styles.statusTab, isActive && styles.statusTabActive]}
+              onPress={() => setSelectedStatus(status)}
+            >
+              <Text
+                style={[
+                  styles.statusTabText,
+                  isActive && styles.statusTabTextActive,
+                ]}
+              >
+                {status}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       <FlatList
-        data={orders}
+        data={filteredOrders}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContent}
@@ -230,52 +296,126 @@ export default function OrderListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF7F1',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  headerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerSubtitle: {
+    marginTop: 2,
+    fontSize: 14,
+    color: '#7C6555',
   },
   listContent: {
-    padding: 10,
-    paddingBottom: 20,
+    padding: 16,
+    paddingBottom: 24,
+  },
+  tabsScroll: {
+    minHeight: 78,
+  },
+  tabsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 10,
+    alignItems: 'center',
+  },
+  statusTab: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+    backgroundColor: '#F9F2EB',
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    marginRight: 10,
+    justifyContent: 'center',
+  },
+  statusTabActive: {
+    backgroundColor: '#8B5E3C',
+    borderColor: '#8B5E3C',
+  },
+  statusTabText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '700',
+    color: '#7C6555',
+  },
+  statusTabTextActive: {
+    color: '#FFFFFF',
   },
   orderCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   orderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
-    paddingBottom: 10,
+    marginBottom: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#EFE0D2',
   },
   orderId: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
   statusText: {
     color: 'white',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   orderInfo: {
     marginBottom: 5,
@@ -283,41 +423,41 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 7,
   },
   infoText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#34495e',
+    color: '#5C3B28',
   },
   itemsPreview: {
-    marginTop: 5,
-    paddingTop: 5,
+    marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#EFE0D2',
   },
   itemsPreviewText: {
     fontSize: 13,
-    color: '#7f8c8d',
+    color: '#8E7665',
     fontStyle: 'italic',
   },
   swipeActions: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   swipeButton: {
     width: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 18,
     marginLeft: 5,
     height: '100%',
   },
   updateButton: {
-    backgroundColor: '#f39c12',
+    backgroundColor: '#D79B3E',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   swipeButtonText: {
     color: 'white',
@@ -328,11 +468,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: 80,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 10,
+    fontSize: 18,
+    color: '#7C6555',
+    marginTop: 14,
+    fontWeight: '700',
   },
 });

@@ -224,15 +224,18 @@ const WishlistScreen = () => {
 
     const renderEmptyState = () => (
         <View style={styles.emptyContainer}>
-            <Icon name="favorite-border" size={80} color="#ccc" />
-            <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
+            <View style={styles.emptyIconWrapper}>
+                <Icon name="favorite-border" size={48} color="#C4A882" />
+            </View>
+            <Text style={styles.emptyTitle}>Your Wishlist is Empty</Text>
             <Text style={styles.emptyText}>
-                Save your favorite items here by tapping the heart icon on products
+                Save your favorite pet products here by tapping the heart icon on any product.
             </Text>
             <TouchableOpacity
                 style={styles.shopButton}
                 onPress={() => navigation.navigate('Home')}
             >
+                <Icon name="storefront" size={18} color="white" />
                 <Text style={styles.shopButtonText}>Start Shopping</Text>
             </TouchableOpacity>
         </View>
@@ -274,6 +277,11 @@ const WishlistScreen = () => {
                         style={styles.productImage}
                         resizeMode="cover"
                     />
+                    {isOutOfStock && (
+                        <View style={styles.outOfStockOverlay}>
+                            <Text style={styles.outOfStockOverlayText}>Out of Stock</Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
 
                 <View style={styles.productInfo}>
@@ -314,19 +322,19 @@ const WishlistScreen = () => {
                                 style={styles.cartButton}
                                 onPress={() => handleAddToCart(product)}
                             >
-                                <Icon name="add-shopping-cart" size={18} color="#FF6B6B" />
+                                <Icon name="add-shopping-cart" size={16} color="#8B5E3C" />
                                 <Text style={styles.cartButtonText}>View Product</Text>
                             </TouchableOpacity>
                         )}
 
                         {isProcessing ? (
-                            <ActivityIndicator size="small" color="#FF6B6B" />
+                            <ActivityIndicator size="small" color="#FF8A8A" />
                         ) : (
                             <TouchableOpacity
                                 style={styles.removeButton}
                                 onPress={() => handleRemove(product._id, product.name)}
                             >
-                                <Icon name="delete-outline" size={22} color="#FF6B6B" />
+                                <Icon name="delete-outline" size={20} color="#FF8A8A" />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -336,11 +344,13 @@ const WishlistScreen = () => {
     };
 
     const renderHeader = () => (
-        <View style={styles.header}>
+        <View style={styles.listHeader}>
             <View style={styles.headerContent}>
                 <Text style={styles.title}>My Wishlist</Text>
                 <Text style={styles.count}>
-                    {localItems.length} {localItems.length === 1 ? 'item' : 'items'}
+                    {localItems.length === 0
+                        ? 'No saved items'
+                        : `${localItems.length} ${localItems.length === 1 ? 'item saved' : 'items saved'}`}
                 </Text>
             </View>
             {localItems.length > 0 && (
@@ -350,10 +360,10 @@ const WishlistScreen = () => {
                     disabled={clearingAll}
                 >
                     {clearingAll ? (
-                        <ActivityIndicator size="small" color="#FF6B6B" />
+                        <ActivityIndicator size="small" color="#FF8A8A" />
                     ) : (
                         <>
-                            <Icon name="delete-sweep" size={22} color="#FF6B6B" />
+                            <Icon name="delete-sweep" size={20} color="#FF8A8A" />
                             <Text style={styles.clearButtonText}>Clear All</Text>
                         </>
                     )}
@@ -368,7 +378,8 @@ const WishlistScreen = () => {
                 <View style={styles.container}>
                     <Header />
                     <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#FF6B6B" />
+                        <ActivityIndicator size="large" color="#8B5E3C" />
+                        <Text style={styles.loadingText}>Loading your wishlist...</Text>
                     </View>
                 </View>
             </UserDrawer>
@@ -391,7 +402,12 @@ const WishlistScreen = () => {
                     ListHeaderComponent={renderHeader}
                     ListEmptyComponent={renderEmptyState}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            colors={['#8B5E3C']}
+                            tintColor="#8B5E3C"
+                        />
                     }
                     showsVerticalScrollIndicator={false}
                 />
@@ -403,71 +419,107 @@ const WishlistScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F5E9DA',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        gap: 12,
+    },
+    loadingText: {
+        fontSize: 14,
+        color: '#B0A090',
     },
     listContent: {
         paddingHorizontal: 16,
-        paddingBottom: 20,
+        paddingBottom: 24,
     },
-    header: {
+    listHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 15,
-        marginBottom: 20,
+        marginTop: 16,
+        marginBottom: 16,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderWidth: 1,
+        borderColor: '#E0D6C8',
+        elevation: 2,
+        shadowColor: '#8B5E3C',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.07,
+        shadowRadius: 3,
     },
     headerContent: {
         flex: 1,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 4,
+        fontSize: 22,
+        fontWeight: '800',
+        color: '#8B5E3C',
+        marginBottom: 3,
     },
     count: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        color: '#B0A090',
     },
     clearButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff0f0',
+        backgroundColor: '#FFF0F0',
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#FFD4D4',
+        gap: 4,
     },
     disabledButton: {
         opacity: 0.5,
     },
     clearButtonText: {
-        color: '#FF6B6B',
-        fontSize: 14,
-        fontWeight: '600',
-        marginLeft: 4,
+        color: '#FF8A8A',
+        fontSize: 13,
+        fontWeight: '700',
     },
     productCard: {
         flexDirection: 'row',
-        backgroundColor: 'white',
-        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
         marginBottom: 12,
         padding: 12,
+        borderWidth: 1,
+        borderColor: '#E0D6C8',
         elevation: 2,
-        shadowColor: '#000',
+        shadowColor: '#8B5E3C',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
     },
     productImage: {
         width: 100,
         height: 100,
-        borderRadius: 8,
-        backgroundColor: '#f0f0f0',
+        borderRadius: 10,
+        backgroundColor: '#FDF0E6',
+    },
+    outOfStockOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(139,94,60,0.6)',
+        paddingVertical: 4,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        alignItems: 'center',
+    },
+    outOfStockOverlayText: {
+        fontSize: 10,
+        color: 'white',
+        fontWeight: '700',
     },
     productInfo: {
         flex: 1,
@@ -478,110 +530,131 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     productName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#333333',
         marginBottom: 4,
     },
     productCategory: {
         fontSize: 12,
-        color: '#666',
+        color: '#A3B18A',
         marginBottom: 6,
+        fontWeight: '500',
     },
     priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 6,
         flexWrap: 'wrap',
+        gap: 4,
     },
     productPrice: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#FF6B6B',
+        fontWeight: '800',
+        color: '#8B5E3C',
     },
     originalPrice: {
         fontSize: 12,
-        color: '#999',
+        color: '#B0A090',
         textDecorationLine: 'line-through',
-        marginRight: 6,
     },
     discountedPrice: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#FF6B6B',
+        fontWeight: '800',
+        color: '#8B5E3C',
     },
     outOfStockBadge: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#F0EAE0',
         paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
+        paddingVertical: 3,
+        borderRadius: 6,
         alignSelf: 'flex-start',
-        marginTop: 4,
+        borderWidth: 1,
+        borderColor: '#E0D6C8',
     },
     outOfStockText: {
         fontSize: 10,
-        color: '#999',
-        fontWeight: '500',
+        color: '#B0A090',
+        fontWeight: '600',
     },
     actionButtons: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 8,
+        marginTop: 10,
     },
     cartButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff0f0',
+        backgroundColor: '#FDF0E6',
         paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
+        paddingHorizontal: 10,
+        borderRadius: 10,
         marginRight: 10,
+        borderWidth: 1,
+        borderColor: '#E0D6C8',
+        gap: 4,
     },
     cartButtonText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: '#FF6B6B',
-        marginLeft: 4,
+        fontWeight: '700',
+        color: '#8B5E3C',
     },
     removeButton: {
         padding: 8,
-        backgroundColor: '#fff0f0',
-        borderRadius: 8,
+        backgroundColor: '#FFF0F0',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#FFD4D4',
     },
     emptyContainer: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 60,
-        paddingHorizontal: 20,
+        paddingHorizontal: 24,
+    },
+    emptyIconWrapper: {
+        backgroundColor: '#FDF0E6',
+        borderRadius: 50,
+        padding: 24,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: '#E0D6C8',
     },
     emptyTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginTop: 20,
+        fontWeight: '800',
+        color: '#8B5E3C',
+        marginTop: 14,
         marginBottom: 10,
     },
     emptyText: {
         fontSize: 14,
-        color: '#666',
+        color: '#B0A090',
         textAlign: 'center',
-        marginBottom: 20,
-        lineHeight: 20,
+        marginBottom: 24,
+        lineHeight: 22,
     },
     shopButton: {
-        backgroundColor: '#FF6B6B',
-        paddingHorizontal: 30,
-        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#8B5E3C',
+        paddingHorizontal: 28,
+        paddingVertical: 14,
         borderRadius: 25,
-        marginTop: 10,
+        gap: 8,
+        elevation: 3,
+        shadowColor: '#8B5E3C',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
     },
     shopButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
     },
 });
 

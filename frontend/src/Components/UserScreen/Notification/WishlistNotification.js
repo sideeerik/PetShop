@@ -132,9 +132,13 @@ export default function WishlistNotification() {
                  response.notification?.data || {};
     
     if (data && data.type === 'WISHLIST_RESTOCK' && data.productId) {
-      navigation.navigate('SingleProduct', { 
+      navigation.navigate('ProductDetailsNotif', { 
         productId: data.productId,
-        fromNotification: true 
+        fromNotification: true,
+        notificationType: data.type,
+        message: response.notification?.request?.content?.body || data.message || `${data.productName || 'A wishlist item'} is back in stock.`,
+        updatedAt: data.updatedAt || data.timestamp || new Date().toISOString(),
+        productData: data.productData || null,
       });
     } else {
       navigation.navigate('NotificationDetails', {
@@ -426,9 +430,13 @@ export default function WishlistNotification() {
     const data = item.request?.content?.data || item.data || {};
     
     if (data.type === 'WISHLIST_RESTOCK' && data.productId) {
-      navigation.navigate('SingleProduct', { 
+      navigation.navigate('ProductDetailsNotif', { 
         productId: data.productId,
-        fromNotification: true 
+        fromNotification: true,
+        notificationType: data.type,
+        message: item.request?.content?.body || item.body || data.message || `${data.productName || 'A wishlist item'} is back in stock.`,
+        updatedAt: data.updatedAt || data.timestamp || item.date || new Date().toISOString(),
+        productData: data.productData || null,
       });
     } else {
       navigation.navigate('NotificationDetails', {

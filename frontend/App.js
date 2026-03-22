@@ -270,7 +270,11 @@ export default function App() {
     else if (data.type === 'WISHLIST_RESTOCK' && data.productId) {
       navigationRef.current?.navigate('ProductDetailsNotif', { 
         productId: data.productId,
-        fromNotification: true 
+        fromNotification: true,
+        notificationType: data.type,
+        message: response.notification?.request?.content?.body || data.message || `${data.productName || 'A wishlist item'} is back in stock.`,
+        updatedAt: data.updatedAt || data.timestamp || new Date().toISOString(),
+        productData: data.productData || null,
       });
     }
     else if (data.type === 'discount' || data.type === 'DISCOUNT' || data.type === 'promotion') {

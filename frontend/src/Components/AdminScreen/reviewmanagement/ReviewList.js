@@ -237,6 +237,19 @@ export default function ReviewListScreen({ navigation }) {
 
   const ReviewListContent = () => (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerIconWrap}>
+          <Icon name="rate-review" size={24} color="#7A4B2A" />
+        </View>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Review Management</Text>
+          <Text style={styles.headerSubtitle}>
+            {filteredReviews.length} {filteredReviews.length === 1 ? 'review' : 'reviews'} shown
+          </Text>
+        </View>
+      </View>
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
@@ -323,30 +336,69 @@ export default function ReviewListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF7F1',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  headerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerSubtitle: {
+    marginTop: 2,
+    fontSize: 14,
+    color: '#7C6555',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 12,
     paddingHorizontal: 15,
-    borderRadius: 25,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderColor: '#E7D8C8',
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
   },
   searchIcon: {
     marginRight: 10,
@@ -355,51 +407,51 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#333',
+    color: '#3E2A1F',
   },
   filterToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     marginHorizontal: 16,
     marginBottom: 12,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    borderRadius: 25,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E7D8C8',
   },
   filterToggleText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: '#3E2A1F',
     marginLeft: 8,
-    fontWeight: '500',
+    fontWeight: '700',
   },
   ratingFilterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     marginHorizontal: 16,
     marginBottom: 12,
     padding: 10,
-    borderRadius: 25,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E7D8C8',
   },
   ratingFilterChip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F2EB',
   },
   ratingFilterChipActive: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
   },
   ratingFilterText: {
     fontSize: 13,
-    color: '#666',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '700',
   },
   ratingFilterTextActive: {
     color: 'white',
@@ -410,23 +462,25 @@ const styles = StyleSheet.create({
   },
   resultsText: {
     fontSize: 13,
-    color: '#666',
+    color: '#7C6555',
     fontStyle: 'italic',
   },
   listContent: {
-    padding: 10,
-    paddingBottom: 20,
+    padding: 16,
+    paddingBottom: 24,
   },
   reviewCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -435,7 +489,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#EFE0D2',
   },
   productInfo: {
     flexDirection: 'row',
@@ -446,13 +500,13 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: '#3E2A1F',
     marginLeft: 8,
     flex: 1,
   },
   reviewDate: {
     fontSize: 11,
-    color: '#999',
+    color: '#9A846F',
   },
   userInfo: {
     flexDirection: 'row',
@@ -463,7 +517,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -478,12 +532,12 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
   },
   userEmail: {
     fontSize: 12,
-    color: '#666',
+    color: '#7C6555',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -496,12 +550,12 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '600',
   },
   reviewComment: {
     fontSize: 14,
-    color: '#555',
+    color: '#5C3B28',
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -509,7 +563,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#EFE0D2',
     paddingTop: 10,
   },
   swipeActions: {
@@ -520,12 +574,12 @@ const styles = StyleSheet.create({
     width: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 18,
     marginLeft: 5,
     height: '100%',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   swipeButtonText: {
     color: 'white',
@@ -536,18 +590,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: 80,
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#666',
-    marginTop: 10,
+    fontWeight: '800',
+    color: '#5C3B28',
+    marginTop: 14,
     marginBottom: 5,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#8E7665',
     textAlign: 'center',
   },
 });

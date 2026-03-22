@@ -357,11 +357,11 @@ const Profile = ({ navigation }) => {
   const getProviderIcon = () => {
     switch (user?.authProvider) {
       case 'google':
-        return <Ionicons name="logo-google" size={16} color="#DB4437" />;
+        return <Ionicons name="logo-google" size={15} color="#DB4437" />;
       case 'facebook':
-        return <Ionicons name="logo-facebook" size={16} color="#4267B2" />;
+        return <Ionicons name="logo-facebook" size={15} color="#4267B2" />;
       default:
-        return <Ionicons name="mail" size={16} color="#666" />;
+        return <Ionicons name="mail" size={15} color="#8B5E3C" />;
     }
   };
 
@@ -369,7 +369,7 @@ const Profile = ({ navigation }) => {
     return (
       <UserDrawer>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color="#8B5E3C" />
         </View>
       </UserDrawer>
     );
@@ -390,7 +390,7 @@ const Profile = ({ navigation }) => {
           >
             {uploadingImage ? (
               <View style={[styles.avatar, styles.avatarUploading]}>
-                <ActivityIndicator size="large" color="#FF6B6B" />
+                <ActivityIndicator size="large" color="#8B5E3C" />
               </View>
             ) : user?.avatar?.url ? (
               <Image
@@ -405,7 +405,7 @@ const Profile = ({ navigation }) => {
               </View>
             )}
             <View style={styles.editAvatarBadge}>
-              <Ionicons name="camera" size={16} color="#fff" />
+              <Ionicons name="camera" size={14} color="#fff" />
             </View>
           </TouchableOpacity>
           
@@ -421,7 +421,7 @@ const Profile = ({ navigation }) => {
             style={styles.editProfileButton}
             onPress={() => setEditModalVisible(true)}
           >
-            <Ionicons name="create-outline" size={20} color="#FF6B6B" />
+            <Ionicons name="create-outline" size={18} color="#8B5E3C" />
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
@@ -432,22 +432,28 @@ const Profile = ({ navigation }) => {
           
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="mail-outline" size={20} color="#FF6B6B" />
+              <View style={styles.iconWrapper}>
+                <Ionicons name="mail-outline" size={18} color="#8B5E3C" />
+              </View>
               <Text style={styles.infoLabel}>Email</Text>
               <Text style={styles.infoValue}>{user?.email || '-'}</Text>
             </View>
             
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={20} color="#FF6B6B" />
+              <View style={styles.iconWrapper}>
+                <Ionicons name="call-outline" size={18} color="#8B5E3C" />
+              </View>
               <Text style={styles.infoLabel}>Contact</Text>
               <Text style={styles.infoValue}>{user?.contact || 'Not provided'}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#4CAF50" />
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
+              <View style={styles.iconWrapper}>
+                <Ionicons name="checkmark-circle-outline" size={18} color="#4CAF50" />
+              </View>
               <Text style={styles.infoLabel}>Verified</Text>
               <Text style={[styles.infoValue, user?.isVerified ? styles.verifiedText : styles.unverifiedText]}>
-                {user?.isVerified ? 'Yes' : 'No'}
+                {user?.isVerified ? 'Yes ✓' : 'No'}
               </Text>
             </View>
           </View>
@@ -459,25 +465,33 @@ const Profile = ({ navigation }) => {
           
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={20} color="#4A6FA5" />
+              <View style={styles.iconWrapper}>
+                <Ionicons name="location-outline" size={18} color="#A3B18A" />
+              </View>
               <Text style={styles.infoLabel}>City</Text>
               <Text style={styles.infoValue}>{user?.address?.city || 'Not provided'}</Text>
             </View>
             
             <View style={styles.infoRow}>
-              <Ionicons name="map-outline" size={20} color="#4A6FA5" />
+              <View style={styles.iconWrapper}>
+                <Ionicons name="map-outline" size={18} color="#A3B18A" />
+              </View>
               <Text style={styles.infoLabel}>Barangay</Text>
               <Text style={styles.infoValue}>{user?.address?.barangay || 'Not provided'}</Text>
             </View>
             
             <View style={styles.infoRow}>
-              <Ionicons name="home-outline" size={20} color="#4A6FA5" />
+              <View style={styles.iconWrapper}>
+                <Ionicons name="home-outline" size={18} color="#A3B18A" />
+              </View>
               <Text style={styles.infoLabel}>Street</Text>
               <Text style={styles.infoValue}>{user?.address?.street || 'Not provided'}</Text>
             </View>
             
-            <View style={styles.infoRow}>
-              <Ionicons name="mail-unread-outline" size={20} color="#4A6FA5" />
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
+              <View style={styles.iconWrapper}>
+                <Ionicons name="mail-unread-outline" size={18} color="#A3B18A" />
+              </View>
               <Text style={styles.infoLabel}>Zip Code</Text>
               <Text style={styles.infoValue}>{user?.address?.zipcode || 'Not provided'}</Text>
             </View>
@@ -487,7 +501,7 @@ const Profile = ({ navigation }) => {
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.changePasswordButton]}
+            style={styles.changePasswordButton}
             onPress={handleChangePassword}
             activeOpacity={0.8}
           >
@@ -511,7 +525,7 @@ const Profile = ({ navigation }) => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Edit Profile</Text>
                 <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                  <Ionicons name="close" size={24} color="#666" />
+                  <Ionicons name="close" size={22} color="#8B5E3C" />
                 </TouchableOpacity>
               </View>
 
@@ -527,7 +541,7 @@ const Profile = ({ navigation }) => {
                       value={name}
                       onChangeText={setName}
                       placeholder="Enter your full name"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                     />
                   </View>
 
@@ -537,7 +551,7 @@ const Profile = ({ navigation }) => {
                       style={[styles.input, styles.disabledInput]}
                       value={user?.email}
                       editable={false}
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                     />
                     <Text style={styles.inputHint}>Email cannot be changed</Text>
                   </View>
@@ -549,7 +563,7 @@ const Profile = ({ navigation }) => {
                       value={contact}
                       onChangeText={setContact}
                       placeholder="Enter your contact number"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                       keyboardType="phone-pad"
                     />
                   </View>
@@ -564,7 +578,7 @@ const Profile = ({ navigation }) => {
                       value={city}
                       onChangeText={setCity}
                       placeholder="Enter your city"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                     />
                   </View>
 
@@ -575,7 +589,7 @@ const Profile = ({ navigation }) => {
                       value={barangay}
                       onChangeText={setBarangay}
                       placeholder="Enter your barangay"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                     />
                   </View>
 
@@ -586,7 +600,7 @@ const Profile = ({ navigation }) => {
                       value={street}
                       onChangeText={setStreet}
                       placeholder="Enter your street"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                     />
                   </View>
 
@@ -597,7 +611,7 @@ const Profile = ({ navigation }) => {
                       value={zipcode}
                       onChangeText={setZipcode}
                       placeholder="Enter your zip code"
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#B0A090"
                       keyboardType="numeric"
                       maxLength={4}
                     />
@@ -608,14 +622,14 @@ const Profile = ({ navigation }) => {
 
               <View style={styles.modalFooter}>
                 <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
+                  style={styles.cancelButton}
                   onPress={() => setEditModalVisible(false)}
                 >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity
-                  style={[styles.modalButton, styles.saveButton]}
+                  style={styles.saveButton}
                   onPress={handleUpdateProfile}
                   disabled={updating}
                 >
@@ -637,177 +651,204 @@ const Profile = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    paddingVertical: 30,
+    paddingVertical: 32,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 4,
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
     borderWidth: 3,
-    borderColor: '#FF6B6B',
+    borderColor: '#8B5E3C',
   },
   avatarUploading: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: '#FDF0E6',
   },
   avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#FF6B6B',
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: '#E0D6C8',
   },
   avatarPlaceholderText: {
-    fontSize: 40,
+    fontSize: 38,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFFFFF',
   },
   editAvatarBadge: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#FF6B6B',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    bottom: 2,
+    right: 2,
+    backgroundColor: '#8B5E3C',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   userName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
+    fontWeight: '800',
+    color: '#333333',
+    marginBottom: 6,
   },
   providerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FDF0E6',
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 16,
-    marginBottom: 15,
+    marginBottom: 16,
     gap: 5,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   providerText: {
     fontSize: 12,
-    color: '#666',
+    color: '#8B5E3C',
     textTransform: 'capitalize',
+    fontWeight: '600',
   },
   editProfileButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 9,
+    paddingHorizontal: 18,
     borderRadius: 20,
-    backgroundColor: '#FFF0F0',
+    backgroundColor: '#FDF0E6',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
     gap: 6,
   },
   editProfileText: {
     fontSize: 14,
-    color: '#FF6B6B',
-    fontWeight: '600',
+    color: '#8B5E3C',
+    fontWeight: '700',
   },
   infoSection: {
-    marginTop: 20,
-    paddingHorizontal: 20,
+    marginTop: 18,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#8B5E3C',
     marginBottom: 10,
   },
   infoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
     shadowRadius: 4,
-    elevation: 3,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F0EAE0',
+  },
+  iconWrapper: {
+    backgroundColor: '#FDF0E6',
+    borderRadius: 8,
+    padding: 6,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   infoLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 10,
+    fontSize: 13,
+    color: '#B0A090',
     width: 70,
+    fontWeight: '500',
   },
   infoValue: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
+    color: '#333333',
+    fontWeight: '600',
   },
   verifiedText: {
     color: '#4CAF50',
+    fontWeight: '700',
   },
   unverifiedText: {
-    color: '#FF6B6B',
+    color: '#FF8A8A',
+    fontWeight: '700',
   },
   actionButtons: {
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingHorizontal: 16,
+    paddingVertical: 28,
   },
-  actionButton: {
+  changePasswordButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
+    paddingVertical: 15,
+    borderRadius: 14,
+    backgroundColor: '#8B5E3C',
     gap: 8,
-  },
-  changePasswordButton: {
-    backgroundColor: '#FF6B6B',
+    elevation: 3,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   actionButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  // Modal Styles
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(61,36,18,0.45)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '90%',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    maxHeight: '92%',
+    borderTopWidth: 1,
+    borderColor: '#E0D6C8',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -815,49 +856,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
+    backgroundColor: '#FDF7F2',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '800',
+    color: '#8B5E3C',
+  },
+  modalCloseBtn: {
+    backgroundColor: '#FDF0E6',
+    borderRadius: 8,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   modalBody: {
     padding: 20,
   },
   modalSectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF6B6B',
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#8B5E3C',
     marginTop: 10,
-    marginBottom: 15,
+    marginBottom: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputGroup: {
     marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#777777',
     marginBottom: 6,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   input: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: '#333',
+    backgroundColor: '#FDF7F2',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#333333',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E0D6C8',
   },
   disabledInput: {
-    backgroundColor: '#e0e0e0',
-    color: '#999',
+    backgroundColor: '#F0EAE0',
+    color: '#B0A090',
   },
   inputHint: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 11,
+    color: '#B0A090',
     marginTop: 4,
     marginLeft: 4,
   },
@@ -865,30 +918,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
     gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
+    backgroundColor: '#FDF7F2',
   },
   cancelButton: {
-    backgroundColor: '#f5f5f5',
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    backgroundColor: '#F0EAE0',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#777777',
+    fontSize: 15,
+    fontWeight: '700',
   },
   saveButton: {
-    backgroundColor: '#FF6B6B',
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    backgroundColor: '#8B5E3C',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
 

@@ -88,13 +88,13 @@ const WishlistButton = ({
                 {buttonLoading || contextLoading ? (
                     <ActivityIndicator 
                         size="small" 
-                        color={inWishlist ? "#FF6B6B" : "#666"} 
+                        color={inWishlist ? "#FF8A8A" : "#C4A882"} 
                     />
                 ) : (
                     <Icon
                         name={inWishlist ? "favorite" : "favorite-border"}
                         size={size}
-                        color={inWishlist ? "#FF6B6B" : "#666"}
+                        color={inWishlist ? "#FF8A8A" : "#C4A882"}
                     />
                 )}
             </Animated.View>
@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 8,
-        borderRadius: 8,
+        borderRadius: 10,
     },
     notInWishlist: {
         backgroundColor: 'transparent',
     },
     inWishlist: {
-        backgroundColor: '#fff0f0',
+        backgroundColor: '#FFF0F0',
     },
     disabled: {
         opacity: 0.5,
@@ -130,12 +130,13 @@ const styles = StyleSheet.create({
     text: {
         marginLeft: 6,
         fontSize: 14,
-        color: '#666',
-        fontWeight: '500',
+        color: '#B0A090',
+        fontWeight: '600',
     },
     textInWishlist: {
-        color: '#FF6B6B',
-    }
+        color: '#FF8A8A',
+        fontWeight: '700',
+    },
 });
 
 export default WishlistButton;

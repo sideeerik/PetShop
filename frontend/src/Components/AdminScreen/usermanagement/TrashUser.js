@@ -212,16 +212,22 @@ const TrashUserScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Icon
           name="arrow-back"
-          size={28}
-          color="#333"
+          size={24}
+          color="#7A4B2A"
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         />
-        <Text style={styles.headerTitle}>Trash / Deleted Users</Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Deleted Users</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Icon name="delete-sweep" size={18} color="#7A4B2A" />
+        </View>
       </View>
 
       <View style={styles.infoContainer}>
-        <Icon name="info" size={20} color="#2196F3" />
+        <Icon name="info" size={20} color="#7A4B2A" />
         <Text style={styles.infoText}>
           Swipe left on a user to restore or permanently delete.
         </Text>
@@ -266,62 +272,98 @@ const TrashUserScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F6EDE3',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    marginRight: 16,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+    overflow: 'hidden',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   infoContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E3F2FD',
+    alignItems: 'flex-start',
+    backgroundColor: '#F5E7D7',
     margin: 16,
-    padding: 12,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
+    borderLeftColor: '#B88B65',
   },
   infoText: {
     flex: 1,
     marginLeft: 12,
     fontSize: 14,
-    color: '#2196F3',
+    lineHeight: 20,
+    color: '#7A4B2A',
   },
   listContainer: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
     padding: 16,
     marginVertical: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
     borderLeftWidth: 4,
-    borderLeftColor: '#f44336',
+    borderLeftColor: '#C95E52',
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderTopColor: '#E7D8C8',
+    borderRightColor: '#E7D8C8',
+    borderBottomColor: '#E7D8C8',
   },
   cardContent: {
     flexDirection: 'row',
@@ -339,14 +381,14 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
   adminBadge: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingVertical: 4,
+    borderRadius: 12,
     marginLeft: 8,
   },
   adminText: {
@@ -356,7 +398,7 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
     marginBottom: 8,
   },
   deletedInfoContainer: {
@@ -366,7 +408,7 @@ const styles = StyleSheet.create({
   },
   deletedText: {
     fontSize: 12,
-    color: '#f44336',
+    color: '#C95E52',
     marginLeft: 6,
     fontStyle: 'italic',
   },
@@ -383,16 +425,16 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    color: '#666',
+    color: '#7C6555',
     marginRight: 12,
   },
   deletedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f44336',
+    backgroundColor: '#C95E52',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 12,
   },
   deletedBadgeText: {
     color: '#fff',
@@ -413,14 +455,14 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   restoreButton: {
-    backgroundColor: '#4CAF50',
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
+    backgroundColor: '#7C9A66',
+    borderTopLeftRadius: 18,
+    borderBottomLeftRadius: 18,
   },
   deleteButton: {
-    backgroundColor: '#f44336',
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
+    backgroundColor: '#C95E52',
+    borderTopRightRadius: 18,
+    borderBottomRightRadius: 18,
   },
   swipeButtonText: {
     color: '#fff',
@@ -437,14 +479,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#999',
+    fontWeight: '800',
+    color: '#5C3B28',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#aaa',
+    color: '#8E7665',
     textAlign: 'center',
     lineHeight: 20,
   },

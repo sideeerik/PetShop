@@ -52,7 +52,9 @@ const checkAndSendRestockNotifications = async (productId, oldStock, newStock) =
             if (wishlists.length === 0) return;
             
             // Get product details for notification
-            const product = await Product.findById(productId).select('name price');
+            const product = await Product.findById(productId).select(
+              'name price discountedPrice discountPercentage description category brand stock images discountEndDate'
+            );
             
             // Prepare notification content
             const notificationTitle = '🎉 Back in Stock!';
@@ -62,7 +64,21 @@ const checkAndSendRestockNotifications = async (productId, oldStock, newStock) =
                 type: 'WISHLIST_RESTOCK',
                 productId: productId,
                 productName: product.name,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                productData: {
+                    _id: product._id.toString(),
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    discountedPrice: product.discountedPrice,
+                    discountPercentage: product.discountPercentage,
+                    category: product.category,
+                    brand: product.brand,
+                    stock: product.stock,
+                    images: product.images || [],
+                    discountEndDate: product.discountEndDate
+                }
             };
 
             logNotificationRecipients(

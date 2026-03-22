@@ -123,10 +123,15 @@ export default function ViewReview({ route, navigation }) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
-            <Icon name="arrow-back" size={24} color="#333" />
+            <Icon name="arrow-back" size={22} color="#7A4B2A" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Review Details</Text>
-          <View style={styles.placeholder} />
+          <View style={styles.headerCopy}>
+            <Text style={styles.headerEyebrow}>Admin</Text>
+            <Text style={styles.headerTitle}>Review Details</Text>
+          </View>
+          <View style={styles.headerBadge}>
+            <Icon name="forum" size={18} color="#7A4B2A" />
+          </View>
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -225,13 +230,13 @@ export default function ViewReview({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
     paddingHorizontal: 20,
   },
   loadingText: {
@@ -256,7 +261,7 @@ const styles = StyleSheet.create({
   backButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     borderRadius: 25,
   },
   backButtonText: {
@@ -267,43 +272,77 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: '#FDF7F1',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E8D6C3',
   },
   backIcon: {
-    padding: 4,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
-  placeholder: {
-    width: 32,
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollView: {
     flex: 1,
   },
   section: {
-    backgroundColor: 'white',
-    marginTop: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    backgroundColor: '#FFFDF9',
+    marginTop: 12,
+    marginHorizontal: 15,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 12,
   },
   productCard: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    backgroundColor: '#F9F2EB',
+    borderRadius: 16,
     padding: 12,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   productInfo: {
     flexDirection: 'row',
@@ -315,25 +354,27 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
     marginBottom: 4,
   },
   productId: {
     fontSize: 12,
-    color: '#999',
+    color: '#9A846F',
   },
   userCard: {
     flexDirection: 'row',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    backgroundColor: '#F9F2EB',
+    borderRadius: 16,
     padding: 12,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   userAvatar: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -349,23 +390,25 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
     marginBottom: 2,
   },
   userId: {
     fontSize: 12,
-    color: '#999',
+    color: '#9A846F',
   },
   reviewCard: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    backgroundColor: '#F9F2EB',
+    borderRadius: 16,
     padding: 12,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   ratingRow: {
     flexDirection: 'row',
@@ -375,8 +418,8 @@ const styles = StyleSheet.create({
   },
   ratingLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
     marginRight: 8,
   },
   starsContainer: {
@@ -385,31 +428,31 @@ const styles = StyleSheet.create({
   },
   ratingValue: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '600',
   },
   commentContainer: {
     marginBottom: 12,
   },
   commentLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
     marginBottom: 6,
   },
   commentText: {
     fontSize: 15,
-    color: '#555',
+    color: '#5C3B28',
     lineHeight: 22,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#E7D8C8',
   },
   datesContainer: {
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#E8D6C3',
     paddingTop: 12,
   },
   dateRow: {
@@ -419,15 +462,15 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 13,
-    color: '#666',
+    color: '#7C6555',
     marginLeft: 6,
     marginRight: 4,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   dateValue: {
     flex: 1,
     fontSize: 13,
-    color: '#333',
+    color: '#5C3B28',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -435,12 +478,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#E8D6C3',
   },
   statusLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#3E2A1F',
     marginRight: 12,
   },
   statusBadge: {
@@ -465,23 +508,27 @@ const styles = StyleSheet.create({
     color: '#c62828',
   },
   actionButtons: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     marginTop: 10,
+    marginHorizontal: 15,
     paddingHorizontal: 16,
     paddingVertical: 16,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     gap: 8,
   },
   actionButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
     color: 'white',
   },
 });

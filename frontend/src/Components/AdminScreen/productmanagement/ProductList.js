@@ -183,6 +183,19 @@ export default function ProductListScreen({ navigation }) {
 
   const ProductListContent = () => (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerIconWrap}>
+          <Icon name="inventory-2" size={24} color="#7A4B2A" />
+        </View>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Product Management</Text>
+          <Text style={styles.headerSubtitle}>
+            {products.length} {products.length === 1 ? 'product' : 'products'} available
+          </Text>
+        </View>
+      </View>
+
       <FlatList
         data={products}
         renderItem={renderItem}
@@ -250,30 +263,71 @@ const styles = StyleSheet.create({
   // ... keep all your existing styles
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF7F1',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  headerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerSubtitle: {
+    marginTop: 2,
+    fontSize: 14,
+    color: '#7C6555',
   },
   listContent: {
-    padding: 10,
+    padding: 16,
     paddingBottom: 100,
   },
   productCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   productImage: {
     width: 70,
@@ -286,8 +340,9 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 5,
+    color: '#3E2A1F',
   },
   priceContainer: {
     flexDirection: 'row',
@@ -298,7 +353,7 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2ecc71',
+    color: '#8B5E3C',
   },
   originalPrice: {
     fontSize: 14,
@@ -309,10 +364,10 @@ const styles = StyleSheet.create({
   discountedPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2ecc71',
+    color: '#8B5E3C',
   },
   discountBadge: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -325,8 +380,8 @@ const styles = StyleSheet.create({
   },
   productCategory: {
     fontSize: 12,
-    color: '#666',
-    backgroundColor: '#f1f2f6',
+    color: '#7C6555',
+    backgroundColor: '#F3E3D3',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
@@ -340,7 +395,7 @@ const styles = StyleSheet.create({
   },
   stockText: {
     fontSize: 12,
-    color: '#666',
+    color: '#7C6555',
   },
   inStock: {
     color: '#27ae60',
@@ -363,7 +418,7 @@ const styles = StyleSheet.create({
   },
   reviewCount: {
     fontSize: 10,
-    color: '#666',
+    color: '#7C6555',
   },
   swipeActions: {
     flexDirection: 'row',
@@ -373,15 +428,15 @@ const styles = StyleSheet.create({
     width: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 18,
     marginLeft: 5,
     height: '100%',
   },
   editButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#B88B65',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   swipeButtonText: {
     color: 'white',
@@ -392,16 +447,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: 80,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 10,
+    fontSize: 18,
+    color: '#7C6555',
+    marginTop: 14,
     marginBottom: 20,
+    fontWeight: '700',
   },
   emptyButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 25,
@@ -435,10 +491,10 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   addButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#8B5E3C',
   },
   trashButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
   },
   fabLabel: {
     marginLeft: 8,

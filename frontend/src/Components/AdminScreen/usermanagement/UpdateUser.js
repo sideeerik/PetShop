@@ -105,12 +105,18 @@ const UpdateUserScreen = ({ route, navigation }) => {
       <View style={styles.header}>
         <Icon
           name="arrow-back"
-          size={28}
-          color="#333"
+          size={24}
+          color="#7A4B2A"
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         />
-        <Text style={styles.headerTitle}>Update User Role</Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Update User Role</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Icon name="manage-accounts" size={18} color="#7A4B2A" />
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -140,7 +146,7 @@ const UpdateUserScreen = ({ route, navigation }) => {
             <Icon
               name="person"
               size={20}
-              color={selectedRole === 'user' ? '#fff' : '#6200ee'}
+              color={selectedRole === 'user' ? '#fff' : '#7A4B2A'}
             />
             <Text style={[
               styles.roleOptionText,
@@ -160,7 +166,7 @@ const UpdateUserScreen = ({ route, navigation }) => {
             <Icon
               name="admin-panel-settings"
               size={20}
-              color={selectedRole === 'admin' ? '#fff' : '#6200ee'}
+              color={selectedRole === 'admin' ? '#fff' : '#7A4B2A'}
             />
             <Text style={[
               styles.roleOptionText,
@@ -241,53 +247,84 @@ const UpdateUserScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F6EDE3',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    marginRight: 16,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+    overflow: 'hidden',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 24,
+    padding: 22,
     margin: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   userInfo: {
     alignItems: 'center',
   },
   userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 8,
   },
   userEmail: {
     fontSize: 16,
-    color: '#666',
+    color: '#7C6555',
     marginBottom: 16,
   },
   currentRoleContainer: {
@@ -296,7 +333,7 @@ const styles = StyleSheet.create({
   },
   currentRoleLabel: {
     fontSize: 16,
-    color: '#666',
+    color: '#7C6555',
     marginRight: 8,
   },
   roleBadge: {
@@ -305,31 +342,34 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   adminBadge: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
   },
   userBadge: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#B88B65',
   },
   roleText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   roleSelectorContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFDF9',
     margin: 16,
-    padding: 20,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    marginTop: 0,
+    padding: 22,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   selectorTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 20,
   },
   roleOptions: {
@@ -339,37 +379,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#6200ee',
-    borderRadius: 8,
+    borderColor: '#D7B99A',
+    borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 20,
     marginBottom: 12,
+    backgroundColor: '#FFFFFF',
   },
   roleOptionActive: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
+    borderColor: '#8B5E3C',
   },
   roleOptionText: {
     marginLeft: 10,
     fontSize: 16,
-    color: '#6200ee',
-    fontWeight: '500',
+    color: '#7A4B2A',
+    fontWeight: '700',
   },
   roleOptionTextActive: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   roleDescription: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#F5E7D7',
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5CBAF',
   },
   descriptionText: {
     flex: 1,
     marginLeft: 12,
     fontSize: 14,
-    color: '#666',
+    color: '#7A4B2A',
+    lineHeight: 20,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -378,45 +423,48 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   cancelButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#EEE2D6',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     width: '48%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D7B99A',
   },
   cancelButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#7A4B2A',
+    fontWeight: '800',
     fontSize: 16,
   },
   updateButton: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     width: '48%',
     alignItems: 'center',
   },
   updateButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '800',
     fontSize: 16,
   },
   warningContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF3E0',
+    alignItems: 'flex-start',
+    backgroundColor: '#F6E7D1',
     marginHorizontal: 16,
     marginBottom: 30,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 18,
     borderLeftWidth: 4,
-    borderLeftColor: '#ff9800',
+    borderLeftColor: '#D79B3E',
   },
   warningText: {
     flex: 1,
     marginLeft: 12,
     fontSize: 14,
-    color: '#E65100',
+    lineHeight: 20,
+    color: '#8A5A1F',
   },
 });
 

@@ -23,6 +23,7 @@ import {
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { getToken } from '../../utils/helper';
+import { sanitizeReviewComment } from '../../utils/profanityFilter';
 import UserDrawer from './UserDrawer';
 import Header from '../layouts/Header';
 import { useWishlist } from '../../context/WishlistContext';
@@ -48,7 +49,7 @@ const ImageCarousel = ({ images }) => {
   if (!validImages || urls.length === 0) {
     return (
       <View style={styles.noImageBox}>
-        <Icon name="pets" size={64} color="#ccc" />
+        <Icon name="pets" size={64} color="#C4A882" />
         <Text style={styles.noImageText}>No image available</Text>
       </View>
     );
@@ -127,7 +128,7 @@ const StarRating = ({ rating, size = 16, showRating = false, interactive = false
               <Icon
                 name={i <= rating ? 'star' : 'star-border'}
                 size={size}
-                color={i <= rating ? '#FFD700' : '#ccc'}
+                color={i <= rating ? '#FFD700' : '#C4A882'}
               />
             </TouchableOpacity>
           ))}
@@ -141,7 +142,7 @@ const StarRating = ({ rating, size = 16, showRating = false, interactive = false
           ))}
           {halfStar && <Icon name="star-half" size={size} color="#FFD700" />}
           {[...Array(emptyStars)].map((_, i) => (
-            <Icon key={`empty-${i}`} name="star-border" size={size} color="#ccc" />
+            <Icon key={`empty-${i}`} name="star-border" size={size} color="#C4A882" />
           ))}
         </View>
       );
@@ -237,6 +238,7 @@ export default function SingleProduct({ route, navigation }) {
   const [userReview, setUserReview] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [loadingUserReview, setLoadingUserReview] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -253,6 +255,7 @@ export default function SingleProduct({ route, navigation }) {
     if (product) {
       fetchProductReviews();
       checkUserReview();
+      checkReviewEligibility();
     }
   }, [product]);
 
@@ -288,7 +291,10 @@ export default function SingleProduct({ route, navigation }) {
     try {
       setLoadingUserReview(true);
       const token = await getToken();
-      if (!token) return;
+      if (!token) {
+        setUserReview(null);
+        return;
+      }
 
       const response = await axios.get(`${BACKEND_URL}/api/v1/review/user/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -303,6 +309,41 @@ export default function SingleProduct({ route, navigation }) {
       console.error('Error checking user review:', error);
     } finally {
       setLoadingUserReview(false);
+    }
+  };
+
+  const checkReviewEligibility = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        setReviewOrderId(null);
+        return;
+      }
+
+      const response = await axios.get(`${BACKEND_URL}/api/v1/orders/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.data.success) {
+        setReviewOrderId(null);
+        return;
+      }
+
+      const eligibleOrder = (response.data.orders || []).find((order) => {
+        if (order.orderStatus === 'Cancelled') {
+          return false;
+        }
+
+        return (order.orderItems || []).some((item) => {
+          const orderedProductId = item.product?._id || item.product;
+          return orderedProductId === productId;
+        });
+      });
+
+      setReviewOrderId(eligibleOrder?._id || null);
+    } catch (error) {
+      console.error('Error checking review eligibility:', error);
+      setReviewOrderId(null);
     }
   };
 
@@ -380,6 +421,11 @@ export default function SingleProduct({ route, navigation }) {
   // ── Open review modal ─────────────────────────────────────────────────────
   const openReviewModal = () => {
     dismissKeyboard(); // Dismiss keyboard when opening review modal
+
+    if (!reviewOrderId && !userReview) {
+      return;
+    }
+
     if (userReview) {
       setRating(userReview.rating);
       setComment(userReview.comment);
@@ -392,12 +438,14 @@ export default function SingleProduct({ route, navigation }) {
 
   // ── Submit review ─────────────────────────────────────────────────────────
   const submitReview = async () => {
+    const sanitizedComment = sanitizeReviewComment(comment);
+
     if (rating === 0) {
       Alert.alert('Error', 'Please select a rating');
       return;
     }
     
-    if (!comment.trim()) {
+    if (!sanitizedComment.sanitizedText) {
       Alert.alert('Error', 'Please enter a review comment');
       return;
     }
@@ -412,8 +460,9 @@ export default function SingleProduct({ route, navigation }) {
 
       const reviewData = {
         rating,
-        comment,
+        comment: sanitizedComment.sanitizedText,
         productId,
+        orderId: reviewOrderId,
       };
 
       let response;
@@ -430,6 +479,7 @@ export default function SingleProduct({ route, navigation }) {
       }
 
       if (response.data.success) {
+        setComment(sanitizedComment.sanitizedText);
         Alert.alert(
           'Success',
           userReview ? 'Review updated successfully!' : 'Review submitted successfully!'
@@ -456,7 +506,7 @@ export default function SingleProduct({ route, navigation }) {
     return (
       <UserDrawer>
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color="#8B5E3C" />
           <Text style={styles.loadingText}>Loading product...</Text>
         </View>
       </UserDrawer>
@@ -468,7 +518,7 @@ export default function SingleProduct({ route, navigation }) {
     return (
       <UserDrawer>
         <View style={styles.centered}>
-          <Icon name="search-off" size={64} color="#ccc" />
+          <Icon name="search-off" size={64} color="#C4A882" />
           <Text style={styles.notFoundText}>Product not found</Text>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.backBtnText}>Go Back</Text>
@@ -479,6 +529,7 @@ export default function SingleProduct({ route, navigation }) {
   }
 
   const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+  const canShowReviewButton = Boolean(userReview || reviewOrderId);
   
   // Determine which price to display
   const displayPrice = product.isOnSale && product.discountedPrice 
@@ -506,7 +557,7 @@ export default function SingleProduct({ route, navigation }) {
             <View style={styles.detailsCard}>
               <View style={styles.chipRow}>
                 <View style={styles.categoryChip}>
-                  <Icon name="category" size={13} color="#FF6B6B" />
+                  <Icon name="category" size={13} color="#8B5E3C" />
                   <Text style={styles.categoryChipText}>{product.category || 'Uncategorized'}</Text>
                 </View>
                 {product.isOnSale && product.discountPercentage && (
@@ -519,12 +570,12 @@ export default function SingleProduct({ route, navigation }) {
                   disabled={wishlistLoading}
                 >
                   {wishlistLoading ? (
-                    <ActivityIndicator size="small" color="#FF6B6B" />
+                    <ActivityIndicator size="small" color="#FF8A8A" />
                   ) : (
                     <Icon 
                       name={isInWishlist(product._id) ? "favorite" : "favorite-border"} 
                       size={18} 
-                      color="#FF6B6B" 
+                      color="#FF8A8A" 
                     />
                   )}
                 </TouchableOpacity>
@@ -550,7 +601,7 @@ export default function SingleProduct({ route, navigation }) {
               {/* Show discount period if on sale */}
               {product.isOnSale && product.discountStartDate && product.discountEndDate && (
                 <View style={styles.discountPeriodContainer}>
-                  <Icon name="event" size={16} color="#e74c3c" />
+                  <Icon name="event" size={16} color="#FF8A8A" />
                   <Text style={styles.discountPeriodText}>
                     Sale ends: {new Date(product.discountEndDate).toLocaleDateString()}
                   </Text>
@@ -585,20 +636,22 @@ export default function SingleProduct({ route, navigation }) {
               )}
 
               {/* Write Review Button */}
-              <TouchableOpacity 
-                style={styles.writeReviewButton}
-                onPress={openReviewModal}
-              >
-                <Icon name="rate-review" size={20} color="white" />
-                <Text style={styles.writeReviewButtonText}>
-                  {userReview ? 'Edit Your Review' : 'Write a Review'}
-                </Text>
-              </TouchableOpacity>
+              {canShowReviewButton && (
+                <TouchableOpacity 
+                  style={styles.writeReviewButton}
+                  onPress={openReviewModal}
+                >
+                  <Icon name="rate-review" size={20} color="white" />
+                  <Text style={styles.writeReviewButtonText}>
+                    {userReview ? 'Edit Your Review' : 'Write a Review'}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               {/* Reviews List */}
               {loadingReviews ? (
                 <View style={styles.reviewsLoader}>
-                  <ActivityIndicator size="small" color="#FF6B6B" />
+                  <ActivityIndicator size="small" color="#8B5E3C" />
                   <Text style={styles.loadingReviewsText}>Loading reviews...</Text>
                 </View>
               ) : (
@@ -636,14 +689,14 @@ export default function SingleProduct({ route, navigation }) {
                   <View style={styles.divider} />
                   {product.brand && (
                     <View style={styles.infoRow}>
-                      <Icon name="storefront" size={18} color="#FF6B6B" />
+                      <Icon name="storefront" size={18} color="#8B5E3C" />
                       <Text style={styles.infoLabel}>Brand</Text>
                       <Text style={styles.infoValue}>{product.brand}</Text>
                     </View>
                   )}
                   {product.weight && (
                     <View style={styles.infoRow}>
-                      <Icon name="fitness-center" size={18} color="#FF6B6B" />
+                      <Icon name="fitness-center" size={18} color="#8B5E3C" />
                       <Text style={styles.infoLabel}>Weight</Text>
                       <Text style={styles.infoValue}>{product.weight}</Text>
                     </View>
@@ -682,7 +735,7 @@ export default function SingleProduct({ route, navigation }) {
                     setReviewModalVisible(false);
                     dismissKeyboard();
                   }}>
-                    <Icon name="close" size={24} color="#333" />
+                    <Icon name="close" size={22} color="#8B5E3C" />
                   </TouchableOpacity>
                 </View>
 
@@ -695,7 +748,7 @@ export default function SingleProduct({ route, navigation }) {
                       />
                     ) : (
                       <View style={styles.reviewProductImagePlaceholder}>
-                        <Icon name="image" size={24} color="#ccc" />
+                        <Icon name="image" size={24} color="#C4A882" />
                       </View>
                     )}
                   </View>
@@ -719,6 +772,7 @@ export default function SingleProduct({ route, navigation }) {
                     multiline
                     numberOfLines={4}
                     placeholder="Share your experience with this product..."
+                    placeholderTextColor="#B0A090"
                     value={comment}
                     onChangeText={setComment}
                     returnKeyType="done"
@@ -755,13 +809,13 @@ export default function SingleProduct({ route, navigation }) {
               activeOpacity={0.8}
             >
               {wishlistLoading ? (
-                <ActivityIndicator size="small" color="#FF6B6B" />
+                <ActivityIndicator size="small" color="#FF8A8A" />
               ) : (
                 <>
                   <Icon 
                     name={isInWishlist(product._id) ? "favorite" : "favorite-border"} 
                     size={22} 
-                    color="#FF6B6B" 
+                    color="#FF8A8A" 
                   />
                   <Text style={styles.wishlistButtonText}>
                     {isInWishlist(product._id) ? 'In Wishlist' : 'Add to Wishlist'}
@@ -779,10 +833,10 @@ export default function SingleProduct({ route, navigation }) {
                 activeOpacity={0.8}
               >
                 {cartLoading ? (
-                  <ActivityIndicator size="small" color="#FF6B6B" />
+                  <ActivityIndicator size="small" color="#8B5E3C" />
                 ) : (
                   <>
-                    <Icon name="add-shopping-cart" size={22} color="#FF6B6B" />
+                    <Icon name="add-shopping-cart" size={22} color="#8B5E3C" />
                     <Text style={styles.cartButtonText}>Add to Cart</Text>
                   </>
                 )}
@@ -812,54 +866,55 @@ export default function SingleProduct({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f5f5' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5', gap: 12 },
-  loadingText: { fontSize: 15, color: '#999', marginTop: 8 },
-  notFoundText: { fontSize: 18, fontWeight: 'bold', color: '#666', marginTop: 12 },
-  backBtn: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 10, backgroundColor: '#FF6B6B', borderRadius: 25 },
+  safeArea: { flex: 1, backgroundColor: '#F5E9DA' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5E9DA', gap: 12 },
+  loadingText: { fontSize: 15, color: '#B0A090', marginTop: 8 },
+  notFoundText: { fontSize: 18, fontWeight: 'bold', color: '#8B5E3C', marginTop: 12 },
+  backBtn: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 10, backgroundColor: '#8B5E3C', borderRadius: 25 },
   backBtnText: { color: 'white', fontWeight: '600', fontSize: 15 },
   scrollView: { flex: 1 },
   toast: {
     position: 'absolute', bottom: 90, left: 20, right: 20,
-    backgroundColor: 'rgba(30,30,30,0.88)',
+    backgroundColor: 'rgba(61,36,18,0.92)',
     paddingHorizontal: 18, paddingVertical: 12,
     borderRadius: 12, alignItems: 'center',
     zIndex: 999, elevation: 10,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 6,
+    shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6,
   },
-  toastText: { color: 'white', fontSize: 14, fontWeight: '600', textAlign: 'center' },
-  carouselContainer: { backgroundColor: '#fff' },
+  toastText: { color: '#FFF5EC', fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  carouselContainer: { backgroundColor: '#FDF7F2' },
   mainImage: { width: SCREEN_WIDTH, height: IMAGE_HEIGHT },
-  noImageBox: { width: SCREEN_WIDTH, height: IMAGE_HEIGHT, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
-  noImageText: { color: '#bbb', fontSize: 14, marginTop: 8 },
+  noImageBox: { width: SCREEN_WIDTH, height: IMAGE_HEIGHT, backgroundColor: '#FDF0E6', justifyContent: 'center', alignItems: 'center' },
+  noImageText: { color: '#C4A882', fontSize: 14, marginTop: 8 },
   imageCounter: {
     position: 'absolute', top: 14, right: 14,
-    backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 12,
+    backgroundColor: 'rgba(61,36,18,0.55)', borderRadius: 12,
     paddingHorizontal: 10, paddingVertical: 4,
   },
   imageCounterText: { color: 'white', fontSize: 13, fontWeight: '600' },
   arrowLeft: {
     position: 'absolute', left: 10, top: IMAGE_HEIGHT / 2 - 22,
-    backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: 22,
+    backgroundColor: 'rgba(139,94,60,0.45)', borderRadius: 22,
     width: 44, height: 44, justifyContent: 'center', alignItems: 'center', zIndex: 10,
   },
   arrowRight: {
     position: 'absolute', right: 10, top: IMAGE_HEIGHT / 2 - 22,
-    backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: 22,
+    backgroundColor: 'rgba(139,94,60,0.45)', borderRadius: 22,
     width: 44, height: 44, justifyContent: 'center', alignItems: 'center', zIndex: 10,
   },
   arrowText: { color: 'white', fontSize: 30, fontWeight: 'bold', lineHeight: 36 },
   dotsContainer: { position: 'absolute', bottom: 70, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.5)', marginHorizontal: 3 },
-  dotActive: { backgroundColor: '#FF6B6B', width: 10, height: 10 },
-  thumbnailStrip: { backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f0f0f0' },
+  dotActive: { backgroundColor: '#8B5E3C', width: 10, height: 10 },
+  thumbnailStrip: { backgroundColor: '#FDF7F2', borderTopWidth: 1, borderTopColor: '#E0D6C8' },
   thumbnailContent: { paddingHorizontal: 12, paddingVertical: 10 },
   thumbnail: { width: 60, height: 60, borderRadius: 8, marginRight: 8, borderWidth: 2, borderColor: 'transparent' },
-  thumbnailActive: { borderColor: '#FF6B6B' },
+  thumbnailActive: { borderColor: '#8B5E3C' },
   detailsCard: {
-    backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    backgroundColor: '#FFFFFF', borderTopLeftRadius: 22, borderTopRightRadius: 22,
     marginTop: -16, paddingHorizontal: 20, paddingTop: 24,
-    elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 8,
+    elevation: 4, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 8,
+    borderTopWidth: 1, borderLeftWidth: 0, borderRightWidth: 0, borderColor: '#E0D6C8',
   },
   chipRow: { 
     flexDirection: 'row', 
@@ -870,46 +925,42 @@ const styles = StyleSheet.create({
   categoryChip: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    backgroundColor: '#fff0f0', 
+    backgroundColor: '#FDF0E6', 
     paddingHorizontal: 10, 
     paddingVertical: 4, 
-    borderRadius: 20 
-  },
-  categoryChipText: { fontSize: 12, color: '#FF6B6B', fontWeight: '600', marginLeft: 4 },
-  wishlistChip: {
-    backgroundColor: '#fff0f0',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
     borderRadius: 20,
-    marginLeft: 'auto',
+    borderWidth: 1, borderColor: '#E0D6C8',
+  },
+  categoryChipText: { fontSize: 12, color: '#8B5E3C', fontWeight: '600', marginLeft: 4 },
+  wishlistChip: {
+    backgroundColor: '#FFF0F0', paddingHorizontal: 10, paddingVertical: 5,
+    borderRadius: 20, marginLeft: 'auto',
+    borderWidth: 1, borderColor: '#FFD4D4',
   },
   discountBadge: {
-    backgroundColor: '#e74c3c',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
+    backgroundColor: '#FF8A8A', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20
   },
   discountBadgeText: {
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
   },
-  productName: { fontSize: 22, fontWeight: '800', color: '#222', marginBottom: 12, lineHeight: 30 },
+  productName: { fontSize: 22, fontWeight: '800', color: '#333333', marginBottom: 12, lineHeight: 30 },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     marginBottom: 8,
   },
-  productPrice: { fontSize: 28, fontWeight: '900', color: '#FF6B6B' },
+  productPrice: { fontSize: 28, fontWeight: '900', color: '#8B5E3C' },
   originalPrice: {
     fontSize: 18,
-    color: '#999',
+    color: '#B0A090',
     textDecorationLine: 'line-through',
     marginRight: 10,
   },
   discountBadgeLarge: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#FF8A8A',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
@@ -923,15 +974,16 @@ const styles = StyleSheet.create({
   discountPeriodContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#FFF0F0',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 12,
+    borderWidth: 1, borderColor: '#FFD4D4',
   },
   discountPeriodText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#e74c3c',
+    color: '#FF8A8A',
     fontWeight: '600',
   },
   priceStockRow: { 
@@ -949,10 +1001,11 @@ const styles = StyleSheet.create({
   
   // Review-related styles
   reviewsSummaryContainer: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#FDF7F2',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 16,
+    borderWidth: 1, borderColor: '#E0D6C8',
   },
   reviewsSummaryHeader: {
     flexDirection: 'row',
@@ -963,7 +1016,7 @@ const styles = StyleSheet.create({
   reviewsSummaryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: '#8B5E3C',
   },
   viewAllReviewsButton: {
     paddingHorizontal: 8,
@@ -971,7 +1024,7 @@ const styles = StyleSheet.create({
   },
   viewAllReviewsText: {
     fontSize: 12,
-    color: '#FF6B6B',
+    color: '#8B5E3C',
     fontWeight: '600',
   },
   averageRatingContainer: {
@@ -982,17 +1035,17 @@ const styles = StyleSheet.create({
   averageRatingText: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#333',
+    color: '#333333',
   },
   totalReviewsText: {
     fontSize: 14,
-    color: '#666',
+    color: '#777777',
   },
   writeReviewButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     paddingVertical: 12,
     borderRadius: 25,
     marginBottom: 20,
@@ -1012,7 +1065,7 @@ const styles = StyleSheet.create({
   },
   loadingReviewsText: {
     fontSize: 14,
-    color: '#999',
+    color: '#B0A090',
   },
   userReviewSection: {
     marginBottom: 20,
@@ -1020,7 +1073,7 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#333',
+    color: '#333333',
     marginBottom: 8,
   },
   reviewsList: {
@@ -1028,16 +1081,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   reviewItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#E0D6C8',
     marginBottom: 12,
   },
   userReviewItem: {
-    backgroundColor: '#fff9f9',
-    borderColor: '#FF6B6B',
+    backgroundColor: '#FDF7F2',
+    borderColor: '#8B5E3C',
     borderWidth: 1.5,
   },
   reviewHeader: {
@@ -1055,7 +1108,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1067,15 +1120,15 @@ const styles = StyleSheet.create({
   reviewerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
   },
   reviewDate: {
     fontSize: 10,
-    color: '#999',
+    color: '#B0A090',
   },
   reviewComment: {
     fontSize: 14,
-    color: '#666',
+    color: '#777777',
     lineHeight: 20,
     marginTop: 8,
   },
@@ -1094,7 +1147,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
-    color: '#666',
+    color: '#777777',
     marginLeft: 4,
     fontWeight: '500',
   },
@@ -1103,14 +1156,13 @@ const styles = StyleSheet.create({
   reviewModalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(61,36,18,0.45)',
   },
   reviewModalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    backgroundColor: '#FFFFFF', borderTopLeftRadius: 22, borderTopRightRadius: 22,
+    padding: 24,
     maxHeight: '90%',
+    borderTopWidth: 1, borderColor: '#E0D6C8',
   },
   reviewModalHeader: {
     flexDirection: 'row',
@@ -1121,15 +1173,14 @@ const styles = StyleSheet.create({
   reviewModalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: '#8B5E3C',
   },
   reviewProductInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    padding: 12, backgroundColor: '#FDF7F2', borderRadius: 12,
+    borderWidth: 1, borderColor: '#E0D6C8',
   },
   reviewProductImageContainer: {
     width: 50,
@@ -1147,13 +1198,13 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FDF0E6',
   },
   reviewProductName: {
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
   },
   ratingContainer: {
     marginBottom: 20,
@@ -1161,8 +1212,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    color: '#333333', marginBottom: 10,
   },
   commentContainer: {
     marginBottom: 20,
@@ -1170,55 +1220,48 @@ const styles = StyleSheet.create({
   commentLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    color: '#333333', marginBottom: 8,
   },
   commentInput: {
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    color: '#333',
-    minHeight: 100,
-    textAlignVertical: 'top',
+    borderWidth: 1, borderColor: '#E0D6C8', borderRadius: 12,
+    padding: 14, fontSize: 14, color: '#333333',
+    minHeight: 100, textAlignVertical: 'top', backgroundColor: '#FDF7F2',
   },
   submitReviewButton: {
-    backgroundColor: '#FF6B6B',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
+    backgroundColor: '#8B5E3C', paddingVertical: 14, borderRadius: 12, alignItems: 'center',
+    elevation: 2, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4,
   },
   submitButtonDisabled: {
     opacity: 0.6,
   },
   submitReviewText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: 'white',
   },
   
-  divider: { height: 1, backgroundColor: '#f0f0f0', marginVertical: 16 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 8 },
-  descriptionText: { fontSize: 15, color: '#555', lineHeight: 24 },
+  divider: { height: 1, backgroundColor: '#E0D6C8', marginVertical: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#8B5E3C', marginBottom: 8 },
+  descriptionText: { fontSize: 15, color: '#555555', lineHeight: 24 },
   infoRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
-  infoLabel: { fontSize: 14, color: '#888', flex: 0.3, marginLeft: 8 },
-  infoValue: { fontSize: 14, color: '#333', fontWeight: '600', flex: 0.7 },
+  infoLabel: { fontSize: 14, color: '#B0A090', flex: 0.3, marginLeft: 8 },
+  infoValue: { fontSize: 14, color: '#333333', fontWeight: '600', flex: 0.7 },
   bottomBar: {
     flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 14, paddingBottom: 20,
-    backgroundColor: 'white', borderTopWidth: 1, borderTopColor: '#f0f0f0',
-    elevation: 8, shadowColor: '#000', shadowOffset: { width: 0, height: -2 },
+    backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E0D6C8',
+    elevation: 8, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1, shadowRadius: 6, gap: 10,
   },
   cartButton: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#fff0f0', paddingVertical: 14, borderRadius: 14,
-    borderWidth: 1.5, borderColor: '#FF6B6B', gap: 8,
+    backgroundColor: '#FDF0E6', paddingVertical: 14, borderRadius: 14,
+    borderWidth: 1.5, borderColor: '#8B5E3C', gap: 8,
   },
-  cartButtonText: { fontSize: 15, fontWeight: '700', color: '#FF6B6B', marginLeft: 6 },
+  cartButtonText: { fontSize: 15, fontWeight: '700', color: '#8B5E3C', marginLeft: 6 },
   buyButton: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FF6B6B', paddingVertical: 14, borderRadius: 14, gap: 8,
+    backgroundColor: '#8B5E3C', paddingVertical: 14, borderRadius: 14, gap: 8,
+    elevation: 3, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4,
   },
   buyButtonText: { fontSize: 15, fontWeight: '700', color: 'white', marginLeft: 6 },
   fullWidthWishlistButton: {
@@ -1226,17 +1269,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#FFF0F0',
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#FF6B6B',
+    borderColor: '#FF8A8A',
     gap: 8,
   },
   wishlistButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FF6B6B',
+    color: '#FF8A8A',
     marginLeft: 6,
   },
   disabledButton: { opacity: 0.45 },

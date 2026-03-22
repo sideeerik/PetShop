@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import { authenticate } from '../../utils/helper';
@@ -68,9 +69,20 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.navigate('LandingPage')}
+      >
+        <Icon name="arrow-back" size={22} color="#8B5E3C" />
+      </TouchableOpacity>
+
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Icon name="pets" size={80} color="#6200ee" />
+          <Image
+            source={require('../layouts/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.appName}>C&V PetShop</Text>
           <Text style={styles.tagline}>Your trusted pet care partner</Text>
         </View>
@@ -80,7 +92,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.subtitle}>Sign in to continue</Text>
 
           <View style={styles.inputContainer}>
-            <Icon name="email" size={20} color="#666" style={styles.inputIcon} />
+            <Icon name="email" size={20} color="#8B5E3C" style={styles.inputIcon} />
             <TextInput
               placeholder="Email Address"
               value={email}
@@ -88,25 +100,25 @@ export default function LoginScreen({ navigation }) {
               autoCapitalize="none"
               keyboardType="email-address"
               style={styles.input}
-              placeholderTextColor="#999"
+              placeholderTextColor="#B0A090"
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
+            <Icon name="lock" size={20} color="#8B5E3C" style={styles.inputIcon} />
             <TextInput
               placeholder="Password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               style={[styles.input, { flex: 1 }]}
-              placeholderTextColor="#999"
+              placeholderTextColor="#B0A090"
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Icon
                 name={showPassword ? 'visibility' : 'visibility-off'}
                 size={20}
-                color="#666"
+                color="#8B5E3C"
               />
             </TouchableOpacity>
           </View>
@@ -151,7 +163,21 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 54 : 20,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 8,
+    elevation: 3,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
   },
   content: {
     flex: 1,
@@ -160,70 +186,84 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 36,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 12,
   },
   appName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#6200ee',
-    marginTop: 10,
+    color: '#8B5E3C',
+    marginTop: 2,
+    letterSpacing: 0.5,
   },
   tagline: {
     fontSize: 14,
-    color: '#666',
-    marginTop: 5,
+    color: '#777777',
+    marginTop: 4,
   },
   formContainer: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
     elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
+    color: '#333333',
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
+    color: '#777777',
+    marginBottom: 22,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    marginBottom: 15,
-    backgroundColor: '#fafafa',
+    borderColor: '#E0D6C8',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginBottom: 14,
+    backgroundColor: '#FDF7F2',
   },
   inputIcon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
+    paddingVertical: 13,
+    fontSize: 15,
+    color: '#333333',
   },
   loginButton: {
-    backgroundColor: '#6200ee',
-    borderRadius: 10,
-    paddingVertical: 14,
+    backgroundColor: '#8B5E3C',
+    borderRadius: 12,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   loginButtonText: {
-    color: 'white',
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 17,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   signUpContainer: {
     flexDirection: 'row',
@@ -232,20 +272,20 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     fontSize: 14,
-    color: '#666',
+    color: '#777777',
   },
   signUpLink: {
     fontSize: 14,
-    color: '#6200ee',
+    color: '#8B5E3C',
     fontWeight: 'bold',
   },
   footer: {
-    marginTop: 30,
+    marginTop: 28,
     alignItems: 'center',
   },
   footerText: {
     fontSize: 12,
-    color: '#999',
+    color: '#999999',
     textAlign: 'center',
   },
   footerLinks: {
@@ -254,7 +294,7 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     fontSize: 12,
-    color: '#6200ee',
+    color: '#A3B18A',
     fontWeight: '500',
   },
 });

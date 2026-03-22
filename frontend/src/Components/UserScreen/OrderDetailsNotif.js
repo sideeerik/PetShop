@@ -51,7 +51,9 @@ export default function OrderDetailsNotif({ route, navigation }) {
   if (!orderData && !orderId) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="error-outline" size={80} color="#e74c3c" />
+        <View style={styles.errorIconWrap}>
+          <Icon name="error-outline" size={48} color="#C4A882" />
+        </View>
         <Text style={styles.errorText}>No order information available</Text>
         <TouchableOpacity
           style={styles.backButton}
@@ -164,14 +166,14 @@ export default function OrderDetailsNotif({ route, navigation }) {
           style={styles.backIcon}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="arrow-back" size={24} color="#2c3e50" />
+          <Icon name="arrow-back" size={22} color="#8B5E3C" />
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Order Update</Text>
           <Text style={styles.orderId}>#{order.orderNumber}</Text>
           {fromNotification && (
             <View style={styles.notificationBadge}>
-              <Icon name="notifications" size={14} color="#f39c12" />
+              <Icon name="notifications" size={14} color="#8B5E3C" />
               <Text style={styles.notificationBadgeText}>New Update</Text>
             </View>
           )}
@@ -191,7 +193,7 @@ export default function OrderDetailsNotif({ route, navigation }) {
 
         {/* Notification Message Card */}
         <View style={styles.messageCard}>
-          <Icon name="notifications-active" size={24} color="#f39c12" />
+          <Icon name="notifications-active" size={22} color="#8B5E3C" />
           <Text style={styles.messageText}>
             {order.message || getStatusMessage(order.status)}
           </Text>
@@ -214,7 +216,7 @@ export default function OrderDetailsNotif({ route, navigation }) {
         {/* Update Time */}
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Icon name="update" size={20} color="#666" />
+            <Icon name="update" size={18} color="#8B5E3C" />
             <Text style={styles.infoLabel}>Updated at:</Text>
             <Text style={styles.infoValue}>{formatDate(order.updatedAt)}</Text>
           </View>
@@ -239,7 +241,7 @@ export default function OrderDetailsNotif({ route, navigation }) {
                         <Image source={{ uri: productImage }} style={styles.itemImage} />
                       ) : (
                         <View style={styles.itemImagePlaceholder}>
-                          <Icon name="image" size={24} color="#ccc" />
+                          <Icon name="image" size={24} color="#C4A882" />
                         </View>
                       )}
                     </View>
@@ -281,20 +283,20 @@ export default function OrderDetailsNotif({ route, navigation }) {
             
             {order.shippingPrice > 0 && (
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Shipping Price</Text>
+                <Text style={styles.summaryLabel}>Shipping Fee</Text>
                 <Text style={styles.summaryValue}>{formatCurrency(order.shippingPrice)}</Text>
               </View>
             )}
 
             {order.taxPrice > 0 && (
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Tax Price</Text>
+                <Text style={styles.summaryLabel}>Tax</Text>
                 <Text style={styles.summaryValue}>{formatCurrency(order.taxPrice)}</Text>
               </View>
             )}
             
             <View style={[styles.summaryRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={styles.totalLabel}>Total Amount</Text>
               <Text style={styles.totalValue}>{formatCurrency(order.total)}</Text>
             </View>
           </View>
@@ -316,8 +318,8 @@ export default function OrderDetailsNotif({ route, navigation }) {
             style={[styles.actionButton, styles.closeButton]}
             onPress={() => navigation.goBack()}
           >
-            <Icon name="close" size={20} color="#fff" />
-            <Text style={styles.actionButtonText}>Close</Text>
+            <Icon name="close" size={20} color="#8B5E3C" />
+            <Text style={styles.secondaryActionText}>Close</Text>
           </TouchableOpacity>
         </View>
 
@@ -336,18 +338,26 @@ export default function OrderDetailsNotif({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
+  },
+  errorIconWrap: {
+    backgroundColor: '#FDF0E6',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    borderRadius: 44,
+    padding: 18,
+    marginBottom: 10,
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6D5848',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 20,
@@ -355,27 +365,33 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E0D6C8',
     elevation: 2,
+    shadowColor: '#8B5E3C',
   },
   backIcon: {
-    padding: 5,
-    marginRight: 15,
+    padding: 7,
+    marginRight: 12,
+    borderRadius: 10,
+    backgroundColor: '#FDF0E6',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   headerTextContainer: {
     flex: 1,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '800',
+    color: '#8B5E3C',
   },
   orderId: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
     marginTop: 2,
   },
   notificationBadge: {
@@ -383,21 +399,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
     gap: 4,
+    alignSelf: 'flex-start',
+    backgroundColor: '#FDF0E6',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
   },
   notificationBadgeText: {
     fontSize: 12,
-    color: '#f39c12',
-    fontWeight: '600',
+    color: '#8B5E3C',
+    fontWeight: '700',
   },
   content: {
-    padding: 15,
-    paddingBottom: 30,
+    padding: 16,
+    paddingBottom: 28,
   },
   statusHeaderCard: {
     alignItems: 'center',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
+    padding: 22,
+    borderRadius: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   statusIconContainer: {
     width: 80,
@@ -409,41 +432,42 @@ const styles = StyleSheet.create({
   },
   statusHeaderText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   messageCard: {
-    backgroundColor: '#fff9e6',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
+    backgroundColor: '#FFF8EF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
     borderWidth: 1,
-    borderColor: '#f39c12',
+    borderColor: '#E8D7C3',
   },
   messageText: {
     flex: 1,
     fontSize: 14,
-    color: '#666',
+    color: '#6D5848',
     lineHeight: 20,
   },
   orderIdContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   orderIdLabel: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
     marginBottom: 4,
   },
   orderIdValue: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#2c3e50',
+    fontWeight: '700',
+    color: '#4A3627',
     marginBottom: 10,
   },
   statusBadge: {
@@ -457,14 +481,15 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   infoCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   infoRow: {
     flexDirection: 'row',
@@ -473,32 +498,34 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#9B8A7A',
     width: 80,
+    fontWeight: '600',
   },
   infoValue: {
     flex: 1,
     fontSize: 14,
-    color: '#2c3e50',
-    fontWeight: '500',
+    color: '#4A3627',
+    fontWeight: '600',
   },
   section: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#8B5E3C',
     marginBottom: 12,
   },
   orderItemContainer: {
     marginBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F0EAE0',
     paddingBottom: 12,
   },
   orderItem: {
@@ -507,9 +534,11 @@ const styles = StyleSheet.create({
   itemImageContainer: {
     width: 70,
     height: 70,
-    borderRadius: 8,
+    borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FDF7F2',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   itemImage: {
     width: '100%',
@@ -520,7 +549,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FDF0E6',
   },
   itemDetails: {
     flex: 1,
@@ -529,14 +558,14 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
     marginBottom: 4,
   },
   itemPrice: {
     fontSize: 13,
-    color: '#f39c12',
-    fontWeight: '500',
+    color: '#8B5E3C',
+    fontWeight: '700',
     marginBottom: 4,
   },
   itemQuantityRow: {
@@ -546,62 +575,64 @@ const styles = StyleSheet.create({
   },
   itemQuantity: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
   },
   itemSubtotal: {
     fontSize: 12,
-    color: '#666',
-    fontWeight: '500',
+    color: '#777777',
+    fontWeight: '600',
   },
   noItemsContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 30,
-    marginBottom: 15,
+    marginBottom: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   noItemsText: {
     fontSize: 14,
-    color: '#999',
+    color: '#B0A090',
     marginTop: 8,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#777777',
   },
   summaryValue: {
     fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
+    color: '#333333',
+    fontWeight: '600',
   },
   totalRow: {
-    marginTop: 8,
-    paddingTop: 8,
+    marginTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: '800',
+    color: '#8B5E3C',
   },
   totalValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#f39c12',
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#8B5E3C',
   },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 10,
-    marginTop: 10,
-    marginBottom: 15,
+    marginTop: 2,
+    marginBottom: 14,
   },
   actionButton: {
     flex: 1,
@@ -609,43 +640,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 14,
     gap: 8,
   },
   contactButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
   },
   closeButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#8B5E3C',
   },
   actionButtonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  secondaryActionText: {
+    color: '#8B5E3C',
+    fontSize: 14,
+    fontWeight: '700',
   },
   noteContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FDF7F2',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     gap: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   noteText: {
     flex: 1,
     fontSize: 12,
-    color: '#999',
+    color: '#9B8A7A',
     fontStyle: 'italic',
   },
   backButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 30,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 24,
   },
   backButtonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

@@ -1,5 +1,7 @@
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 const Review = require("../models/Review");
+const { sanitizeReviewComment } = require("../utils/profanityFilter");
 
 // Create a review (only if the user hasn't reviewed yet and order is delivered)
 exports.createReview = async (req, res) => {
@@ -7,8 +9,9 @@ exports.createReview = async (req, res) => {
     const { rating, comment, productId, orderId } = req.body;
     const userId = req.user._id;
     const userName = req.user.name;
+    const sanitizedComment = sanitizeReviewComment(comment);
 
-    if (!rating || !comment || !productId || !orderId) {
+    if (!rating || !sanitizedComment.sanitizedText || !productId || !orderId) {
       return res.status(400).json({ success: false, message: "Please provide rating, comment, productId, and orderId." });
     }
 
@@ -22,13 +25,27 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ success: false, message: "You have already reviewed this product. Please update your review instead." });
     }
 
+    const eligibleOrder = await Order.findOne({
+      _id: orderId,
+      user: userId,
+      orderStatus: { $ne: "Cancelled" },
+      "orderItems.product": productId,
+    });
+
+    if (!eligibleOrder) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only review products you have ordered.",
+      });
+    }
+
     // Create new review
     const review = await Review.create({
       user: userId,
       product: productId,
       name: userName,
       rating,
-      comment,
+      comment: sanitizedComment.sanitizedText,
     });
 
     // Update product ratings and review count
@@ -53,8 +70,9 @@ exports.updateReview = async (req, res) => {
   try {
     const { rating, comment, productId, orderId } = req.body; // Add orderId here
     const userId = req.user._id;
+    const sanitizedComment = sanitizeReviewComment(comment);
 
-    if (!rating || !comment || !productId) {
+    if (!rating || !sanitizedComment.sanitizedText || !productId) {
       return res.status(400).json({ success: false, message: "Please provide rating, comment, and productId." });
     }
 
@@ -68,7 +86,7 @@ exports.updateReview = async (req, res) => {
     }
 
     review.rating = rating;
-    review.comment = comment;
+    review.comment = sanitizedComment.sanitizedText;
     await review.save();
 
     // Update product average rating

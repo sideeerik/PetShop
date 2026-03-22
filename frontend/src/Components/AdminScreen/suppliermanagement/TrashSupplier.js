@@ -189,10 +189,15 @@ export default function TrashSupplierScreen({ navigation }) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="arrow-back" size={24} color="#2c3e50" />
+          <Icon name="arrow-back" size={22} color="#7A4B2A" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Deleted Suppliers</Text>
-        <Text style={styles.countBadge}>{deletedSuppliers.length}</Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Deleted Suppliers</Text>
+        </View>
+        <View style={styles.countBadgeWrap}>
+          <Text style={styles.countBadge}>{deletedSuppliers.length}</Text>
+        </View>
       </View>
 
       <FlatList
@@ -234,7 +239,7 @@ export default function TrashSupplierScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
@@ -242,56 +247,79 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#FDF7F1',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#ecf0f1',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    marginRight: 15,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    flex: 1,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  countBadgeWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   countBadge: {
-    backgroundColor: '#e74c3c',
-    color: 'white',
+    color: '#C95E52',
     fontSize: 14,
-    fontWeight: 'bold',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    fontWeight: '800',
   },
   listContent: {
-    padding: 10,
+    padding: 16,
     paddingBottom: 20,
   },
   supplierCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#e74c3c',
+    borderLeftColor: '#C95E52',
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderTopColor: '#E7D8C8',
+    borderRightColor: '#E7D8C8',
+    borderBottomColor: '#E7D8C8',
   },
   supplierInfo: {
     flex: 1,
@@ -304,16 +332,16 @@ const styles = StyleSheet.create({
   },
   supplierName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '800',
+    color: '#3E2A1F',
     flex: 1,
     textDecorationLine: 'line-through',
   },
   deletedBadge: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingVertical: 4,
+    borderRadius: 12,
     marginLeft: 10,
   },
   deletedText: {
@@ -323,22 +351,22 @@ const styles = StyleSheet.create({
   },
   supplierEmail: {
     fontSize: 14,
-    color: '#7f8c8d',
-    marginBottom: 3,
+    color: '#7C6555',
+    marginBottom: 4,
   },
   supplierPhone: {
     fontSize: 14,
-    color: '#7f8c8d',
-    marginBottom: 3,
+    color: '#7C6555',
+    marginBottom: 4,
   },
   supplierAddress: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: '#8E7665',
     marginBottom: 5,
   },
   deletedDate: {
     fontSize: 12,
-    color: '#95a5a6',
+    color: '#9A846F',
     fontStyle: 'italic',
   },
   swipeActions: {
@@ -349,14 +377,14 @@ const styles = StyleSheet.create({
     width: 90,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 18,
     marginLeft: 5,
   },
   restoreButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: '#7C9A66',
   },
   deleteButton: {
-    backgroundColor: '#c0392b',
+    backgroundColor: '#C95E52',
   },
   swipeButtonText: {
     color: 'white',
@@ -372,14 +400,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#7f8c8d',
+    fontWeight: '800',
+    color: '#5C3B28',
     marginTop: 20,
     marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#95a5a6',
+    color: '#8E7665',
     textAlign: 'center',
     paddingHorizontal: 40,
   },

@@ -13,6 +13,7 @@ import {
 import axios from 'axios';
 import { getToken } from '../../../utils/helper';
 import AdminDrawer from '../AdminDrawer';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -25,6 +26,19 @@ const UpdateSupplierContent = React.memo(({
 }) => {
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={22} color="#7A4B2A" />
+        </TouchableOpacity>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Update Supplier</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Icon name="edit-road" size={18} color="#7A4B2A" />
+        </View>
+      </View>
+
       <View style={styles.form}>
         <Text style={styles.label}>Supplier Name *</Text>
         <TextInput
@@ -54,6 +68,7 @@ const UpdateSupplierContent = React.memo(({
         />
 
         <Text style={styles.sectionTitle}>Address</Text>
+        <Text style={styles.sectionSubtitle}>Update the supplier's location details below.</Text>
         
         <Text style={styles.label}>Street *</Text>
         <TextInput
@@ -263,32 +278,93 @@ export default function UpdateSupplierScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   form: {
-    padding: 20,
+    margin: 16,
+    padding: 22,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   label: {
     fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#2c3e50',
+    fontWeight: '700',
+    marginBottom: 7,
+    color: '#5C3B28',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: '#DDC8B5',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     marginBottom: 15,
     fontSize: 16,
+    color: '#3E2A1F',
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginTop: 10,
-    marginBottom: 15,
-    color: '#2c3e50',
+    marginBottom: 6,
+    color: '#3E2A1F',
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#8E7665',
+    marginBottom: 14,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -297,29 +373,31 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   cancelButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#EEE2D6',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginRight: 10,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D7B99A',
   },
   cancelButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#7A4B2A',
+    fontWeight: '800',
     fontSize: 16,
   },
   submitButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginLeft: 10,
     alignItems: 'center',
   },
   submitButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '800',
     fontSize: 16,
   },
 });

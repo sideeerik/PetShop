@@ -207,7 +207,7 @@ const ChatMessage = ({ message }) => {
     ]}>
       {!isUser && (
         <View style={styles.botAvatar}>
-          <Icon name="pets" size={20} color="#FF6B6B" />
+          <Icon name="pets" size={18} color="#8B5E3C" />
         </View>
       )}
       
@@ -234,7 +234,7 @@ const ChatMessage = ({ message }) => {
       
       {isUser && (
         <View style={styles.userAvatar}>
-          <Icon name="person" size={18} color="#666" />
+          <Icon name="person" size={16} color="#8B5E3C" />
         </View>
       )}
     </View>
@@ -256,7 +256,7 @@ const PetSelectorModal = ({ visible, onClose, onSelectPet, currentPet }) => {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Select Your Pet</Text>
             <TouchableOpacity onPress={onClose}>
-              <Icon name="close" size={24} color="#999" />
+              <Icon name="close" size={24} color="#B0A090" />
             </TouchableOpacity>
           </View>
           
@@ -285,7 +285,7 @@ const PetSelectorModal = ({ visible, onClose, onSelectPet, currentPet }) => {
                   {pet.name}
                 </Text>
                 {currentPet === pet.full && (
-                  <Icon name="check-circle" size={20} color="#FF6B6B" />
+                  <Icon name="check-circle" size={20} color="#8B5E3C" />
                 )}
               </TouchableOpacity>
             ))}
@@ -321,7 +321,7 @@ const QuickQuestions = ({ onSelect, disabled }) => {
           disabled={disabled}
           activeOpacity={0.7}
         >
-          <Icon name={q.icon} size={16} color="#FF6B6B" />
+          <Icon name={q.icon} size={14} color="#8B5E3C" />
           <Text style={styles.quickQuestionText}>{q.text}</Text>
         </TouchableOpacity>
       ))}
@@ -650,12 +650,18 @@ export default function Chatbot({ navigation }) {
   const renderHeader = () => (
     <View style={styles.chatHeader}>
       <View style={styles.headerLeft}>
-        <Text style={styles.headerTitle}>PetSense AI</Text>
-        {petType && (
-          <View style={styles.currentPetBadge}>
-            <Text style={styles.currentPetText}>{petType}</Text>
-          </View>
-        )}
+        <View style={styles.headerAvatarWrapper}>
+          <Icon name="pets" size={20} color="#8B5E3C" />
+        </View>
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.headerTitle}>PetSense AI</Text>
+          <Text style={styles.headerSubtitle}>Your pet care assistant</Text>
+          {petType && (
+            <View style={styles.currentPetBadge}>
+              <Text style={styles.currentPetText}>{petType}</Text>
+            </View>
+          )}
+        </View>
       </View>
       <View style={styles.headerRight}>
         <TouchableOpacity
@@ -663,14 +669,14 @@ export default function Chatbot({ navigation }) {
           onPress={() => setModalVisible(true)}
           activeOpacity={0.7}
         >
-          <Icon name="pets" size={22} color="#FF6B6B" />
+          <Icon name="pets" size={20} color="#8B5E3C" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.headerIconBtn}
           onPress={handleClearChat}
           activeOpacity={0.7}
         >
-          <Icon name="delete-outline" size={22} color="#FF6B6B" />
+          <Icon name="delete-outline" size={20} color="#FF8A8A" />
         </TouchableOpacity>
       </View>
     </View>
@@ -682,12 +688,6 @@ export default function Chatbot({ navigation }) {
         <Header />
         
         {renderHeader()}
-        
-        {/* Quick questions */}
-        <QuickQuestions 
-          onSelect={handleQuickQuestion} 
-          disabled={loading}
-        />
         
         {/* Messages list */}
         <FlatList
@@ -701,14 +701,15 @@ export default function Chatbot({ navigation }) {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={onRefresh} 
-              colors={['#FF6B6B']} 
+              colors={['#8B5E3C']}
+              tintColor="#8B5E3C"
             />
           }
           ListFooterComponent={
             loading ? (
               <View style={styles.typingIndicator}>
-                <ActivityIndicator size="small" color="#FF6B6B" />
-                <Text style={styles.typingText}>PetSense is typing...</Text>
+                <ActivityIndicator size="small" color="#8B5E3C" />
+                <Text style={styles.typingText}>PetSense is thinking...</Text>
               </View>
             ) : null
           }
@@ -719,6 +720,11 @@ export default function Chatbot({ navigation }) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
+          <QuickQuestions 
+            onSelect={handleQuickQuestion} 
+            disabled={loading}
+          />
+
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
@@ -741,7 +747,7 @@ export default function Chatbot({ navigation }) {
               <Icon 
                 name="send" 
                 size={20} 
-                color={!inputText.trim() || loading ? '#ccc' : 'white'} 
+                color={!inputText.trim() || loading ? '#C4A882' : 'white'} 
               />
             </TouchableOpacity>
           </View>
@@ -775,7 +781,7 @@ export default function Chatbot({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   chatHeader: {
     flexDirection: 'row',
@@ -783,48 +789,78 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 3,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 10,
+  },
+  headerAvatarWrapper: {
+    backgroundColor: '#FDF0E6',
+    borderRadius: 22,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E0D6C8',
+  },
+  headerTextGroup: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginRight: 8,
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#8B5E3C',
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: '#B0A090',
+    marginTop: 1,
   },
   currentPetBadge: {
-    backgroundColor: '#fff0f0',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FDF0E6',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    marginTop: 6,
   },
   currentPetText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#FF6B6B',
+    color: '#8B5E3C',
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerIconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 4,
+    backgroundColor: '#FFF0F0',
+    borderWidth: 1,
+    borderColor: '#FFD4D4',
   },
   quickQuestionsContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
   },
   quickQuestionsContent: {
     paddingHorizontal: 12,
@@ -834,23 +870,24 @@ const styles = StyleSheet.create({
   quickQuestionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    alignSelf: 'flex-start',
+    backgroundColor: '#FDF0E6',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#E0D6C8',
     marginRight: 6,
+    gap: 5,
   },
   quickQuestionText: {
     fontSize: 12,
-    color: '#555',
-    marginLeft: 4,
-    fontWeight: '500',
+    color: '#8B5E3C',
+    fontWeight: '600',
   },
   messagesList: {
     paddingHorizontal: 12,
-    paddingTop: 12,
+    paddingTop: 14,
     paddingBottom: 8,
   },
   messageContainer: {
@@ -865,126 +902,162 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   botAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#fff0f0',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FDF0E6',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+    borderWidth: 1.5,
+    borderColor: '#E0D6C8',
   },
   userAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#e0e0e0',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#FDF0E6',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   messageBubble: {
     maxWidth: '75%',
     padding: 12,
-    borderRadius: 16,
+    borderRadius: 18,
   },
   userBubble: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     borderBottomRightRadius: 4,
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   botBubble: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 4,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    shadowColor: '#8B5E3C',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
   },
   messageText: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 21,
   },
   userText: {
-    color: 'white',
+    color: '#FFFFFF',
   },
   botText: {
-    color: '#333',
+    color: '#333333',
   },
   petTypeIndicator: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#FF6B6B',
+    color: '#8B5E3C',
     marginBottom: 4,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#FDF0E6',
     alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   timestamp: {
     fontSize: 9,
-    color: '#999',
-    marginTop: 4,
+    color: '#B0A090',
+    marginTop: 5,
     alignSelf: 'flex-end',
   },
   typingIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     marginLeft: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    gap: 8,
   },
   typingText: {
     fontSize: 12,
-    color: '#999',
-    marginLeft: 8,
+    color: '#B0A090',
+    fontStyle: 'italic',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: 'white',
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
+    elevation: 4,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
   },
   input: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 20,
+    backgroundColor: '#FDF7F2',
+    borderRadius: 22,
     paddingHorizontal: 16,
     paddingVertical: 10,
     maxHeight: 100,
     fontSize: 14,
+    color: '#333333',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#E0D6C8',
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
+    elevation: 3,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   sendButtonDisabled: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F0EAE0',
+    elevation: 0,
+    shadowOpacity: 0,
   },
   healthIndicator: {
     position: 'absolute',
     bottom: 70,
     right: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    shadowColor: '#8B5E3C',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
+    gap: 6,
   },
   healthDot: {
     width: 8,
@@ -993,28 +1066,31 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   healthOnline: {
-    backgroundColor: '#4caf50',
+    backgroundColor: '#A3B18A',
   },
   healthOffline: {
-    backgroundColor: '#f44336',
+    backgroundColor: '#FF8A8A',
   },
   healthText: {
     fontSize: 10,
-    color: '#666',
+    color: '#B0A090',
+    fontWeight: '500',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(61,36,18,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: '85%',
     maxHeight: '70%',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    shadowColor: '#8B5E3C',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -1029,11 +1105,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: '#8B5E3C',
   },
   modalSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#B0A090',
     marginBottom: 16,
     lineHeight: 20,
   },
@@ -1046,10 +1122,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F0EAE0',
   },
   petItemSelected: {
-    backgroundColor: '#fff9f9',
+    backgroundColor: '#FDF0E6',
   },
   petEmoji: {
     fontSize: 24,
@@ -1058,11 +1134,11 @@ const styles = StyleSheet.create({
   petName: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#333333',
     fontWeight: '500',
   },
   petNameSelected: {
-    color: '#FF6B6B',
+    color: '#8B5E3C',
     fontWeight: '700',
   },
   modalCloseBtn: {
@@ -1070,11 +1146,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
   },
   modalCloseText: {
     fontSize: 16,
-    color: '#FF6B6B',
+    color: '#8B5E3C',
     fontWeight: '600',
   },
 });

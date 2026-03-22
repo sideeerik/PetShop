@@ -74,12 +74,18 @@ const ViewUserScreen = ({ route, navigation }) => {
       <View style={styles.header}>
         <Icon
           name="arrow-back"
-          size={28}
-          color="#333"
+          size={24}
+          color="#7A4B2A"
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         />
-        <Text style={styles.headerTitle}>User Details</Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>User Details</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Icon name="visibility" size={18} color="#7A4B2A" />
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -166,7 +172,7 @@ const ViewUserScreen = ({ route, navigation }) => {
           style={[styles.actionButton, styles.editButton]}
           onPress={() => navigation.navigate('UpdateUser', { userId: user._id })}
         >
-          <Icon name="edit" size={20} color="#2196F3" />
+          <Icon name="edit" size={20} color="#B88B65" />
           <Text style={styles.actionButtonText}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -197,7 +203,7 @@ const ViewUserScreen = ({ route, navigation }) => {
             );
           }}
         >
-          <Icon name="delete" size={20} color="#f44336" />
+          <Icon name="delete" size={20} color="#C95E52" />
           <Text style={styles.actionButtonText}>Delete</Text>
         </TouchableOpacity>
       </View>
@@ -226,52 +232,83 @@ const ViewUserScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F6EDE3',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    marginRight: 16,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+    overflow: 'hidden',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 24,
+    padding: 20,
     margin: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   section: {
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 16,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#EFE0D2',
   },
   infoRow: {
     flexDirection: 'row',
@@ -281,12 +318,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '700',
   },
   value: {
     fontSize: 16,
-    color: '#333',
+    color: '#3E2A1F',
     fontWeight: '400',
   },
   roleBadge: {
@@ -295,10 +332,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   adminBadge: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
   },
   userBadge: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#B88B65',
   },
   roleText: {
     color: '#fff',
@@ -326,38 +363,42 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
     textAlign: 'center',
   },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFDF9',
     marginHorizontal: 16,
-    borderRadius: 10,
+    borderRadius: 24,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 20,
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: '#F9F2EB',
   },
   editButton: {
     borderWidth: 1,
-    borderColor: '#2196F3',
+    borderColor: '#B88B65',
   },
   deleteButton: {
     borderWidth: 1,
-    borderColor: '#f44336',
+    borderColor: '#C95E52',
   },
   actionButtonText: {
     marginLeft: 8,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '700',
+    color: '#5C3B28',
   },
 });
 

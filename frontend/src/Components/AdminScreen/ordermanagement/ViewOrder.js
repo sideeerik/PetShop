@@ -137,10 +137,15 @@ export default function ViewOrderScreen({ route, navigation }) {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Icon name="arrow-back" size={24} color="#2c3e50" />
+            <Icon name="arrow-back" size={22} color="#7A4B2A" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Order Details</Text>
-          <View style={styles.placeholder} />
+          <View style={styles.headerCopy}>
+            <Text style={styles.headerEyebrow}>Admin</Text>
+            <Text style={styles.headerTitle}>Order Details</Text>
+          </View>
+          <View style={styles.headerBadge}>
+            <Icon name="receipt-long" size={18} color="#7A4B2A" />
+          </View>
         </View>
 
         {/* Order Status */}
@@ -312,13 +317,13 @@ export default function ViewOrderScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
     paddingHorizontal: 20,
   },
   errorTitle: {
@@ -337,7 +342,7 @@ const styles = StyleSheet.create({
   goBackButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#8B5E3C',
     borderRadius: 25,
   },
   goBackButtonText: {
@@ -348,32 +353,65 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: 'white',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    padding: 5,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
-  placeholder: {
-    width: 34,
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   section: {
-    backgroundColor: 'white',
-    marginTop: 10,
-    padding: 15,
+    backgroundColor: '#FFFDF9',
+    marginTop: 12,
+    marginHorizontal: 15,
+    padding: 18,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 15,
   },
   statusContainer: {
@@ -392,7 +430,7 @@ const styles = StyleSheet.create({
   },
   deliveredDate: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
   },
   infoGrid: {
     gap: 15,
@@ -407,13 +445,13 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#8E7665',
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 14,
-    color: '#2c3e50',
-    fontWeight: '500',
+    color: '#5C3B28',
+    fontWeight: '600',
   },
   addressContainer: {
     flexDirection: 'row',
@@ -426,13 +464,13 @@ const styles = StyleSheet.create({
   },
   addressText: {
     fontSize: 15,
-    color: '#2c3e50',
-    fontWeight: '500',
+    color: '#5C3B28',
+    fontWeight: '600',
     marginBottom: 4,
   },
   addressSubText: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
     lineHeight: 20,
   },
   contactContainer: {
@@ -441,20 +479,22 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#EFE0D2',
   },
   contactText: {
     marginLeft: 10,
     fontSize: 15,
-    color: '#2c3e50',
-    fontWeight: '500',
+    color: '#5C3B28',
+    fontWeight: '600',
     flex: 1,
   },
   orderItemCard: {
-    backgroundColor: '#f8f9fa',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#F9F2EB',
+    padding: 14,
+    borderRadius: 16,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   orderItemHeader: {
     flexDirection: 'row',
@@ -463,14 +503,14 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#2c3e50',
+    fontWeight: '700',
+    color: '#3E2A1F',
     flex: 1,
   },
   itemPrice: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#27ae60',
+    fontWeight: '700',
+    color: '#8B5E3C',
   },
   orderItemDetails: {
     flexDirection: 'row',
@@ -478,17 +518,19 @@ const styles = StyleSheet.create({
   },
   itemQuantity: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
   },
   itemSubtotal: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '600',
   },
   summaryContainer: {
-    backgroundColor: '#f8f9fa',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#F9F2EB',
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -497,27 +539,27 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
   },
   summaryValue: {
     fontSize: 14,
-    color: '#2c3e50',
+    color: '#5C3B28',
   },
   totalRow: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#E8D6C3',
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#27ae60',
+    fontWeight: '800',
+    color: '#8B5E3C',
   },
   actionButtons: {
     padding: 15,
@@ -528,15 +570,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 16,
     gap: 10,
   },
   updateButton: {
-    backgroundColor: '#f39c12',
+    backgroundColor: '#D79B3E',
   },
   actionButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
   },
 });

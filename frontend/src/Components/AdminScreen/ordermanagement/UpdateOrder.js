@@ -63,10 +63,6 @@ export default function UpdateOrderScreen({ route, navigation }) {
   }, [order]);
 
   useEffect(() => {
-    if (error) {
-      Alert.alert('Error', error);
-      dispatch(clearError());
-    }
     if (success) {
       Alert.alert(
         'Success',
@@ -74,11 +70,23 @@ export default function UpdateOrderScreen({ route, navigation }) {
         [
           {
             text: 'OK',
-            onPress: () => navigation.goBack(),
+            onPress: () => {
+              dispatch(clearError());
+              dispatch(clearSuccess());
+              dispatch(clearCurrentOrder());
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'OrderList' }],
+              });
+            },
           },
         ]
       );
-      dispatch(clearSuccess());
+      return;
+    }
+    if (error) {
+      Alert.alert('Error', error);
+      dispatch(clearError());
     }
   }, [error, success, dispatch, navigation]);
 
@@ -162,10 +170,15 @@ export default function UpdateOrderScreen({ route, navigation }) {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Icon name="arrow-back" size={24} color="#2c3e50" />
+            <Icon name="arrow-back" size={22} color="#7A4B2A" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Update Order Status</Text>
-          <View style={styles.placeholder} />
+          <View style={styles.headerCopy}>
+            <Text style={styles.headerEyebrow}>Admin</Text>
+            <Text style={styles.headerTitle}>Update Order Status</Text>
+          </View>
+          <View style={styles.headerBadge}>
+            <Icon name="local-shipping" size={18} color="#7A4B2A" />
+          </View>
         </View>
 
         {/* Order Info */}
@@ -176,7 +189,7 @@ export default function UpdateOrderScreen({ route, navigation }) {
             <Text style={styles.infoText}>{order.user?.name || 'N/A'}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Icon name="attach-money" size={16} color="#666" />
+            <Icon name="payments" size={16} color="#666" />
             <Text style={styles.infoText}>₱{order.totalPrice?.toFixed(2) || order.totalAmount?.toFixed(2) || '0.00'}</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.orderStatus) }]}>
@@ -305,50 +318,76 @@ export default function UpdateOrderScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: 'white',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E8D6C3',
   },
   backButton: {
-    padding: 5,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
-  placeholder: {
-    width: 34,
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   orderInfoCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     margin: 15,
-    padding: 15,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    padding: 18,
+    borderRadius: 22,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   orderId: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#3E2A1F',
+    marginBottom: 12,
   },
   infoRow: {
     flexDirection: 'row',
@@ -358,7 +397,7 @@ const styles = StyleSheet.create({
   infoText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#34495e',
+    color: '#5C3B28',
   },
   statusBadge: {
     alignSelf: 'flex-start',
@@ -373,32 +412,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   selectionCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     margin: 15,
     marginTop: 0,
-    padding: 15,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    padding: 18,
+    borderRadius: 22,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 10,
+    fontWeight: '800',
+    color: '#3E2A1F',
+    marginBottom: 12,
   },
   dropdownButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#f8f9fa',
+    borderColor: '#DDC8B5',
+    borderRadius: 16,
+    padding: 14,
+    backgroundColor: '#F9F2EB',
   },
   dropdownContent: {
     flexDirection: 'row',
@@ -413,7 +454,7 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: 15,
-    color: '#2c3e50',
+    color: '#3E2A1F',
     flex: 1,
   },
   modalOverlay: {
@@ -424,15 +465,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 20,
     width: '100%',
     maxHeight: '70%',
     elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -440,44 +481,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E8D6C3',
   },
   modalTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
   statusOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#EFE0D2',
   },
   selectedOption: {
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#F5E7D7',
   },
   statusOptionText: {
     fontSize: 15,
-    color: '#2c3e50',
+    color: '#3E2A1F',
     flex: 1,
   },
   selectedOptionText: {
-    fontWeight: '600',
-    color: '#2ecc71',
+    fontWeight: '700',
+    color: '#7A4B2A',
   },
   previewContainer: {
     marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#E8D6C3',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   previewLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
   },
   previewBadge: {
     paddingHorizontal: 12,
@@ -490,19 +531,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   infoCard: {
-    backgroundColor: '#e8f4fd',
+    backgroundColor: '#F5E7D7',
     margin: 15,
     marginTop: 0,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 18,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#B88B65',
   },
   infoNote: {
     flex: 1,
     fontSize: 13,
-    color: '#2c3e50',
+    color: '#5C3B28',
     lineHeight: 18,
   },
   actionButtons: {
@@ -518,26 +561,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 16,
     gap: 8,
   },
   cancelButton: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#EEE2D6',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#D7B99A',
   },
   cancelButtonText: {
-    color: '#666',
+    color: '#7A4B2A',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
   },
   updateButton: {
-    backgroundColor: '#f39c12',
+    backgroundColor: '#D79B3E',
   },
   updateButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
   },
   disabledButton: {
     opacity: 0.5,

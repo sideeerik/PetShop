@@ -77,6 +77,40 @@ export const isAuthenticated = async () => {
   return !!token;
 };
 
+const findNavigatorWithRoute = (navigation, routeName) => {
+  let currentNavigation = navigation;
+
+  while (currentNavigation) {
+    const state = currentNavigation.getState?.();
+
+    if (state?.routeNames?.includes(routeName)) {
+      return currentNavigation;
+    }
+
+    currentNavigation = currentNavigation.getParent?.();
+  }
+
+  return null;
+};
+
+export const resetToAuth = (navigation) => {
+  if (!navigation) {
+    return;
+  }
+
+  const rootNavigation = findNavigatorWithRoute(navigation, 'MainApp');
+
+  if (!rootNavigation) {
+    console.warn('Unable to find root navigator for auth reset');
+    return;
+  }
+
+  rootNavigation.reset({
+    index: 0,
+    routes: [{ name: 'MainApp' }],
+  });
+};
+
 // Logout
 export const logout = async (navigation) => {
   try {
@@ -99,12 +133,9 @@ export const logout = async (navigation) => {
     // Notify listeners about auth change (user is now null)
     notifyAuthChange(null);
     
-    // Navigate to Login screen if navigation object is provided
+    // Reset through the root navigator so MainApp can swap to the auth stack.
     if (navigation) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      });
+      resetToAuth(navigation);
     }
   } catch (error) {
     console.error('Error logging out', error);

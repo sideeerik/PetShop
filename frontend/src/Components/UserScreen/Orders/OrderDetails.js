@@ -19,7 +19,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { getToken } from '../../../utils/helper';
+import { getToken, resetToAuth } from '../../../utils/helper';
+import { sanitizeReviewComment } from '../../../utils/profanityFilter';
 import UserDrawer from '../UserDrawer';
 import Header from '../../layouts/Header';
 
@@ -31,7 +32,7 @@ const STATUS_COLORS = {
   'Accepted': '#4A6FA5',
   'Out for Delivery': '#FFA500',
   'Delivered': '#4CAF50',
-  'Cancelled': '#FF6B6B',
+  'Cancelled': '#FF8A8A',
 };
 
 // Status step mapping for timeline - Updated to match your workflow
@@ -89,7 +90,7 @@ export default function OrderDetails({ navigation, route }) {
       setError(null);
       const token = await getToken();
       if (!token) {
-        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        resetToAuth(navigation);
         return;
       }
 
@@ -235,13 +236,14 @@ export default function OrderDetails({ navigation, route }) {
 
   const submitReview = async () => {
     if (!selectedProduct) return;
+    const sanitizedComment = sanitizeReviewComment(comment);
     
     if (rating === 0) {
       Alert.alert('Error', 'Please select a rating');
       return;
     }
     
-    if (!comment.trim()) {
+    if (!sanitizedComment.sanitizedText) {
       Alert.alert('Error', 'Please enter a review comment');
       return;
     }
@@ -250,7 +252,7 @@ export default function OrderDetails({ navigation, route }) {
       setSubmittingReview(true);
       const token = await getToken();
       if (!token) {
-        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        resetToAuth(navigation);
         return;
       }
 
@@ -259,7 +261,7 @@ export default function OrderDetails({ navigation, route }) {
       
       const reviewData = {
         rating,
-        comment,
+        comment: sanitizedComment.sanitizedText,
         productId,
         orderId: order._id,
       };
@@ -278,6 +280,7 @@ export default function OrderDetails({ navigation, route }) {
       }
 
       if (response.data.success) {
+        setComment(sanitizedComment.sanitizedText);
         Alert.alert(
           'Success',
           existingReview ? 'Review updated successfully!' : 'Review submitted successfully!'
@@ -419,7 +422,7 @@ export default function OrderDetails({ navigation, route }) {
     return (
       <UserDrawer>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color="#8B5E3C" />
           <Text style={styles.loadingText}>Loading order details...</Text>
         </View>
       </UserDrawer>
@@ -432,13 +435,16 @@ export default function OrderDetails({ navigation, route }) {
         <SafeAreaView style={styles.safeArea}>
           <Header />
           <View style={styles.errorContainer}>
-            <Icon name="error-outline" size={80} color="#e0e0e0" />
+            <View style={styles.errorIconWrapper}>
+              <Icon name="error-outline" size={48} color="#C4A882" />
+            </View>
             <Text style={styles.errorTitle}>Order Not Found</Text>
             <Text style={styles.errorText}>
-              {error || "The order you're looking for doesn't exist or has been removed."}
+              {error || "We couldn't find this order. It may have been removed."}
             </Text>
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Text style={styles.backButtonText}>Go Back</Text>
+            <TouchableOpacity style={styles.goBackBtn} onPress={() => navigation.goBack()}>
+              <Icon name="arrow-back" size={18} color="white" />
+              <Text style={styles.goBackBtnText}>Go Back</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -465,7 +471,7 @@ export default function OrderDetails({ navigation, route }) {
               style={styles.modalCloseButton}
               onPress={() => setModalVisible(false)}
             >
-              <Icon name="close" size={30} color="white" />
+              <Icon name="close" size={28} color="white" />
             </TouchableOpacity>
             {selectedImage && (
               <Image 
@@ -499,11 +505,11 @@ export default function OrderDetails({ navigation, route }) {
                       ? 'Edit Your Review' 
                       : 'Write a Review'}
                   </Text>
-                  <TouchableOpacity onPress={() => {
+                  <TouchableOpacity style={styles.modalCloseBtn} onPress={() => {
                     setReviewModalVisible(false);
                     dismissKeyboard();
                   }}>
-                    <Icon name="close" size={24} color="#333" />
+                    <Icon name="close" size={22} color="#8B5E3C" />
                   </TouchableOpacity>
                 </View>
 
@@ -517,7 +523,7 @@ export default function OrderDetails({ navigation, route }) {
                         />
                       ) : (
                         <View style={styles.reviewProductImagePlaceholder}>
-                          <Icon name="image" size={24} color="#ccc" />
+                          <Icon name="image" size={24} color="#C4A882" />
                         </View>
                       )}
                     </View>
@@ -528,7 +534,7 @@ export default function OrderDetails({ navigation, route }) {
                 <View style={styles.ratingContainer}>
                   <Text style={styles.ratingLabel}>Your Rating</Text>
                   <View style={styles.starsContainer}>
-                    {renderStars(rating, true, 30)}
+                    {renderStars(rating, true, 32)}
                   </View>
                 </View>
 
@@ -539,6 +545,7 @@ export default function OrderDetails({ navigation, route }) {
                     multiline
                     numberOfLines={4}
                     placeholder="Share your experience with this product..."
+                    placeholderTextColor="#B0A090"
                     value={comment}
                     onChangeText={setComment}
                     returnKeyType="done"
@@ -573,18 +580,18 @@ export default function OrderDetails({ navigation, route }) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header with Back Button */}
-            <View style={styles.header}>
+            {/* Page Header */}
+            <View style={styles.pageHeader}>
               <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Icon name="arrow-back" size={24} color="#333" />
+                <Icon name="arrow-back" size={22} color="#8B5E3C" />
               </TouchableOpacity>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Order Details</Text>
                 <Text style={styles.orderId}>#{order._id?.slice(-8).toUpperCase()}</Text>
               </View>
-              <View style={styles.statusBadge}>
-                <View style={[styles.statusDot, { backgroundColor: STATUS_COLORS[order.orderStatus] || '#999' }]} />
-                <Text style={[styles.statusText, { color: STATUS_COLORS[order.orderStatus] || '#999' }]}>
+              <View style={[styles.statusBadge, { backgroundColor: (STATUS_COLORS[order.orderStatus] || '#B0A090') + '22' }]}>
+                <View style={[styles.statusDot, { backgroundColor: STATUS_COLORS[order.orderStatus] || '#B0A090' }]} />
+                <Text style={[styles.statusText, { color: STATUS_COLORS[order.orderStatus] || '#B0A090' }]}>
                   {order.orderStatus}
                 </Text>
               </View>
@@ -592,7 +599,7 @@ export default function OrderDetails({ navigation, route }) {
 
             {/* Order Timeline - Only show for non-cancelled orders */}
             {order.orderStatus !== 'Cancelled' && (
-              <View style={styles.timelineContainer}>
+              <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Order Status</Text>
                 <View style={styles.timeline}>
                   {STATUS_STEPS.map((step, index) => {
@@ -704,27 +711,29 @@ export default function OrderDetails({ navigation, route }) {
               </View>
               
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Shipping Price</Text>
+                <Text style={styles.summaryLabel}>Shipping Fee</Text>
                 <Text style={styles.summaryValue}>₱{order.shippingPrice?.toFixed(2) || '0.00'}</Text>
               </View>
 
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Tax Price</Text>
+                <Text style={styles.summaryLabel}>Tax</Text>
                 <Text style={styles.summaryValue}>₱{order.taxPrice?.toFixed(2) || '0.00'}</Text>
               </View>
               
               <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalLabel}>Total Amount</Text>
                 <Text style={styles.totalValue}>₱{order.totalPrice?.toFixed(2) || '0.00'}</Text>
               </View>
             </View>
 
             {/* Shipping Information */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Shipping Information</Text>
+              <Text style={styles.sectionTitle}>Shipping Address</Text>
               
               <View style={styles.infoRow}>
-                <Icon name="location-on" size={18} color="#666" />
+                <View style={styles.infoIconWrapper}>
+                  <Icon name="location-on" size={16} color="#8B5E3C" />
+                </View>
                 <Text style={styles.infoText}>
                   {order.shippingInfo?.address}, {order.shippingInfo?.city}, {' '}
                   {order.shippingInfo?.postalCode}, {order.shippingInfo?.country}
@@ -732,7 +741,9 @@ export default function OrderDetails({ navigation, route }) {
               </View>
 
               <View style={styles.infoRow}>
-                <Icon name="phone" size={18} color="#666" />
+                <View style={styles.infoIconWrapper}>
+                  <Icon name="phone" size={16} color="#8B5E3C" />
+                </View>
                 <Text style={styles.infoText}>{order.shippingInfo?.phoneNo || 'N/A'}</Text>
               </View>
             </View>
@@ -740,13 +751,6 @@ export default function OrderDetails({ navigation, route }) {
             {/* Payment Information */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Payment Information</Text>
-              
-              <View style={styles.infoRow}>
-                <Icon name="payment" size={18} color="#666" />
-                <Text style={styles.infoText}>
-                  Payment ID: {order.paymentInfo?.id || 'N/A'}
-                </Text>
-              </View>
               
               <View style={styles.infoRow}>
                 <Icon name="receipt" size={18} color="#666" />
@@ -801,21 +805,21 @@ export default function OrderDetails({ navigation, route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   loadingText: {
     fontSize: 15,
-    color: '#999',
+    color: '#B0A090',
     marginTop: 12,
   },
   errorContainer: {
@@ -824,36 +828,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 30,
   },
+  errorIconWrapper: {
+    backgroundColor: '#FDF0E6',
+    borderRadius: 50,
+    padding: 22,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+  },
   errorTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#555',
-    marginTop: 16,
+    fontWeight: '800',
+    color: '#8B5E3C',
+    marginTop: 12,
   },
   errorText: {
     fontSize: 14,
-    color: '#aaa',
+    color: '#B0A090',
     textAlign: 'center',
     lineHeight: 22,
     marginTop: 6,
     marginBottom: 20,
   },
   backButton: {
-    padding: 4,
+    backgroundColor: '#FDF0E6',
+    borderRadius: 10,
+    padding: 7,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
-  backButtonText: {
-    color: '#FF6B6B',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  header: {
+  goBackBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
+    backgroundColor: '#8B5E3C',
+    paddingHorizontal: 24,
     paddingVertical: 12,
+    borderRadius: 25,
+    gap: 6,
+  },
+  goBackBtnText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 3,
   },
   headerTextContainer: {
     flex: 1,
@@ -861,56 +891,51 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
   },
   orderId: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
     marginTop: 2,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 15,
   },
   statusDot: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: 4,
     marginRight: 5,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   section: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     marginTop: 10,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 18,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#E0D6C8',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 12,
-  },
-  timelineContainer: {
-    backgroundColor: 'white',
-    marginTop: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#8B5E3C',
+    marginBottom: 14,
   },
   timeline: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'relative',
-    marginTop: 10,
+    marginTop: 6,
   },
   timelineStep: {
     flex: 1,
@@ -918,74 +943,78 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   timelineDot: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#F0EAE0',
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: '#E0D6C8',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 6,
   },
   timelineDotCompleted: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: '#A3B18A',
+    borderColor: '#A3B18A',
   },
   timelineDotCurrent: {
-    borderColor: '#FF6B6B',
+    borderColor: '#8B5E3C',
     borderWidth: 3,
   },
   timelineText: {
-    fontSize: 11,
-    color: '#999',
+    fontSize: 10,
+    color: '#B0A090',
     textAlign: 'center',
   },
   timelineTextCompleted: {
-    color: '#333',
-    fontWeight: '500',
+    color: '#8B5E3C',
+    fontWeight: '700',
   },
   timelineLine: {
     position: 'absolute',
-    top: 11,
+    top: 12,
     right: -50,
     width: 80,
     height: 2,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#E0D6C8',
   },
   timelineLineCompleted: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#A3B18A',
   },
   cancelledContainer: {
-    backgroundColor: '#FFEBEE',
+    backgroundColor: '#FFF0F0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     marginTop: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#FFD4D4',
   },
   cancelledText: {
-    color: '#FF6B6B',
+    color: '#FF8A8A',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     marginLeft: 8,
   },
   orderItemContainer: {
-    marginBottom: 16,
+    marginBottom: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    paddingBottom: 12,
+    borderBottomColor: '#F0EAE0',
+    paddingBottom: 14,
   },
   orderItem: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   itemImageContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
+    width: 72,
+    height: 72,
+    borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   itemImage: {
     width: '100%',
@@ -996,7 +1025,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FDF0E6',
   },
   itemDetails: {
     flex: 1,
@@ -1005,15 +1034,15 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
     marginBottom: 4,
   },
   itemPrice: {
-    fontSize: 13,
-    color: '#FF6B6B',
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: 14,
+    color: '#8B5E3C',
+    fontWeight: '700',
+    marginBottom: 6,
   },
   itemQuantityRow: {
     flexDirection: 'row',
@@ -1022,79 +1051,81 @@ const styles = StyleSheet.create({
   },
   itemQuantity: {
     fontSize: 12,
-    color: '#999',
+    color: '#8B5E3C',
+    fontWeight: '600',
   },
   itemSubtotal: {
     fontSize: 12,
-    color: '#666',
-    fontWeight: '500',
+    color: '#777777',
+    fontWeight: '600',
   },
   allImagesContainer: {
     marginTop: 8,
-    marginLeft: 82, // Align with the image width + margin
+    marginLeft: 84,
   },
   allImagesTitle: {
     fontSize: 12,
-    color: '#666',
+    color: '#B0A090',
     marginBottom: 6,
     fontWeight: '500',
   },
   thumbnailContainer: {
     marginRight: 8,
-    borderRadius: 6,
+    borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#E0D6C8',
   },
   thumbnail: {
-    width: 50,
-    height: 50,
+    width: 52,
+    height: 52,
   },
-  // Review Styles
   reviewSection: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 14,
+    paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#F0EAE0',
   },
   reviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   reviewTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#8B5E3C',
   },
   writeReviewButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 15,
+    gap: 4,
   },
   writeReviewText: {
     fontSize: 12,
     color: 'white',
-    marginLeft: 4,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   editReviewButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FDF0E6',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 15,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   editReviewText: {
     fontSize: 12,
-    color: '#FF6B6B',
-    marginLeft: 4,
-    fontWeight: '500',
+    color: '#8B5E3C',
+    fontWeight: '600',
   },
   averageRatingContainer: {
     marginBottom: 12,
@@ -1102,64 +1133,65 @@ const styles = StyleSheet.create({
   averageRatingRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
   },
   averageRatingText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginRight: 8,
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#333333',
   },
   averageStars: {
     flexDirection: 'row',
-    marginRight: 8,
   },
   totalReviews: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
   },
   userReviewContainer: {
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: '#FDF7F2',
+    padding: 12,
+    borderRadius: 10,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   yourReviewLabel: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 4,
+    fontWeight: '700',
+    color: '#8B5E3C',
+    marginBottom: 5,
   },
   userReviewContent: {
     marginLeft: 4,
   },
   userReviewStars: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   userReviewComment: {
     fontSize: 13,
-    color: '#333',
+    color: '#333333',
     lineHeight: 18,
     marginBottom: 4,
   },
   userReviewDate: {
     fontSize: 10,
-    color: '#999',
+    color: '#B0A090',
   },
   otherReviewsContainer: {
     marginTop: 8,
   },
   otherReviewsTitle: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#666',
+    fontWeight: '700',
+    color: '#777777',
     marginBottom: 8,
   },
   otherReviewItem: {
     marginBottom: 10,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F0EAE0',
   },
   otherReviewHeader: {
     flexDirection: 'row',
@@ -1169,21 +1201,21 @@ const styles = StyleSheet.create({
   },
   reviewerName: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
   },
   reviewerStars: {
     flexDirection: 'row',
   },
   reviewerComment: {
     fontSize: 12,
-    color: '#666',
+    color: '#777777',
     lineHeight: 16,
     marginBottom: 4,
   },
   reviewerDate: {
     fontSize: 10,
-    color: '#999',
+    color: '#B0A090',
   },
   viewAllButton: {
     alignSelf: 'center',
@@ -1191,52 +1223,56 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: 12,
-    color: '#FF6B6B',
-    fontWeight: '600',
+    color: '#8B5E3C',
+    fontWeight: '700',
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#777777',
   },
   summaryValue: {
     fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
-  },
-  discountValue: {
-    color: '#4CAF50',
+    color: '#333333',
+    fontWeight: '600',
   },
   totalRow: {
-    marginTop: 8,
-    paddingTop: 8,
+    marginTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: '800',
+    color: '#8B5E3C',
   },
   totalValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FF6B6B',
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#8B5E3C',
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 12,
+  },
+  infoIconWrapper: {
+    backgroundColor: '#FDF0E6',
+    borderRadius: 8,
+    padding: 6,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: '#666',
-    marginLeft: 10,
+    color: '#555555',
     lineHeight: 20,
   },
   paymentStatus: {
@@ -1245,49 +1281,51 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   dateLabel: {
     fontSize: 13,
-    color: '#999',
+    color: '#B0A090',
     marginLeft: 8,
-    marginRight: 4,
+    marginRight: 6,
   },
   dateValue: {
     flex: 1,
     fontSize: 13,
-    color: '#666',
+    color: '#555555',
   },
-  // Modal styles
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: 'rgba(0,0,0,0.92)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCloseButton: {
     position: 'absolute',
-    top: 40,
+    top: 44,
     right: 20,
     zIndex: 1,
-    padding: 10,
+    backgroundColor: 'rgba(139,94,60,0.7)',
+    borderRadius: 20,
+    padding: 8,
   },
   modalImage: {
     width: '100%',
     height: '80%',
   },
-  // Review Modal Styles
   reviewModalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(61,36,18,0.45)',
   },
   reviewModalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    padding: 24,
     maxHeight: '90%',
+    borderTopWidth: 1,
+    borderColor: '#E0D6C8',
   },
   reviewModalHeader: {
     flexDirection: 'row',
@@ -1297,16 +1335,23 @@ const styles = StyleSheet.create({
   },
   reviewModalTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: '800',
+    color: '#8B5E3C',
+  },
+  modalCloseBtn: {
+    padding: 6,
+    backgroundColor: '#FDF0E6',
+    borderRadius: 8,
   },
   reviewProductInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#FDF7F2',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   reviewProductImageContainer: {
     width: 50,
@@ -1324,22 +1369,22 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FDF0E6',
   },
   reviewProductName: {
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
   },
   ratingContainer: {
     marginBottom: 20,
   },
   ratingLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    fontWeight: '700',
+    color: '#333333',
+    marginBottom: 10,
   },
   starsContainer: {
     flexDirection: 'row',
@@ -1350,32 +1395,38 @@ const styles = StyleSheet.create({
   },
   commentLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
     marginBottom: 8,
   },
   commentInput: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: '#E0D6C8',
+    borderRadius: 12,
+    padding: 14,
     fontSize: 14,
-    color: '#333',
+    color: '#333333',
     minHeight: 100,
     textAlignVertical: 'top',
+    backgroundColor: '#FDF7F2',
   },
   submitReviewButton: {
-    backgroundColor: '#FF6B6B',
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: '#8B5E3C',
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   submitButtonDisabled: {
     opacity: 0.6,
   },
   submitReviewText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: 'white',
   },
 });

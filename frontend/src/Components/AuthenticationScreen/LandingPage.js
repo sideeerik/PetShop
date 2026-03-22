@@ -12,7 +12,6 @@ import {
   TextInput,
   Dimensions,
   FlatList,
-  Modal,
   Animated,
   Alert,
 } from 'react-native';
@@ -34,11 +33,36 @@ const CATEGORIES = [
   'Health & Wellness', 'Grooming Supplies', 'Feeding Supplies', 'Housing & Cages',
 ];
 
+const PRICE_RANGES = [
+  { label: '0-200', min: 0, max: 200 },
+  { label: '200-400', min: 200, max: 400 },
+  { label: '400-600', min: 400, max: 600 },
+  { label: '600-800', min: 600, max: 800 },
+  { label: '800-1000', min: 800, max: 1000 },
+  { label: '1000-1500', min: 1000, max: 1500 },
+  { label: '1500-2000', min: 1500, max: 2000 },
+  { label: '2000+', min: 2000, max: Infinity },
+];
+
 const BANNERS = [
-  require('../sliding/1.jpg'),
-  require('../sliding/2.jpg'),
-  require('../sliding/3.jpg'),
-  require('../sliding/4.jpg'),
+  {
+    image: require('../sliding/1.png'),
+    title: 'Premium Pet Food',
+    subtitle: 'Up to 40% Off',
+    buttonText: 'Shop Now'
+  },
+  {
+    image: require('../sliding/2.png'),
+    title: 'New Arrivals',
+    subtitle: 'Latest Toys & Accessories',
+    buttonText: 'Explore'
+  },
+  {
+    image: require('../sliding/3.png'),
+    title: 'Health & Wellness',
+    subtitle: 'Vet Recommended Products',
+    buttonText: 'Learn More'
+  },
 ];
 
 // ─── Product Image Carousel ───────────────────────────────────────────────────
@@ -53,7 +77,7 @@ const ProductImageCarousel = ({ images, onCardPress }) => {
   if (!validImages || urls.length === 0) {
     return (
       <TouchableOpacity onPress={onCardPress} activeOpacity={0.85} style={styles.noImage}>
-        <Icon name="pets" size={40} color="#ccc" />
+        <Icon name="pets" size={40} color="#C4A882" />
       </TouchableOpacity>
     );
   }
@@ -105,7 +129,7 @@ const StarRating = ({ rating, size = 12, showRating = false }) => {
         ))}
         {halfStar && <Icon name="star-half" size={size} color="#FFD700" />}
         {[...Array(emptyStars)].map((_, i) => (
-          <Icon key={`empty-${i}`} name="star-border" size={size} color="#ccc" />
+          <Icon key={`empty-${i}`} name="star-border" size={size} color="#C4A882" />
         ))}
       </View>
       {showRating && <Text style={styles.ratingText}>({rating.toFixed(1)})</Text>}
@@ -120,6 +144,29 @@ const Toast = ({ message, opacity }) => (
   </Animated.View>
 );
 
+// ─── Banner Component with Text Overlay ───────────────────────────────────────
+const BannerItem = ({ item, onPress }) => (
+  <TouchableOpacity 
+    style={styles.bannerContainer} 
+    activeOpacity={0.9}
+    onPress={onPress}
+  >
+    <Image source={item.image} style={styles.bannerImage} />
+    
+    {/* Text Overlay with Gradient Effect */}
+    <View style={styles.bannerOverlay}>
+      <View style={styles.bannerTextContainer}>
+        <Text style={styles.bannerTitle}>{item.title}</Text>
+        <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
+        <View style={styles.bannerButton}>
+          <Text style={styles.bannerButtonText}>{item.buttonText}</Text>
+          <Icon name="arrow-forward" size={16} color="#FFFFFF" />
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
 // ─── Home Screen (Landing Page) ──────────────────────────────────────────────
 export default function LandingPage({ navigation }) {
   const [user, setUser] = useState(null);
@@ -129,8 +176,10 @@ export default function LandingPage({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortAscending, setSortAscending] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [showPriceRanges, setShowPriceRanges] = useState(false);
+  const [selectedPriceRange, setSelectedPriceRange] = useState(null);
+  const [sortAscending, setSortAscending] = useState(true);
   const [cart, setCart] = useState([]);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [toastMessage, setToastMessage] = useState('');
@@ -191,7 +240,7 @@ export default function LandingPage({ navigation }) {
 
   useEffect(() => { 
     filterAndSortProducts(); 
-  }, [products, selectedCategory, searchQuery, sortAscending]);
+  }, [products, selectedCategory, selectedPriceRange, searchQuery, sortAscending]);
 
   useEffect(() => {
     if (BANNERS.length > 1) startAutoSlide();
@@ -226,6 +275,19 @@ export default function LandingPage({ navigation }) {
     if (idx !== currentBannerIndex) setCurrentBannerIndex(idx);
   };
 
+  // Handle banner press
+  const handleBannerPress = (banner) => {
+    // Navigate based on banner type or category
+    if (banner.title.includes('Pet Food')) {
+      selectCategory('Pet Food');
+    } else if (banner.title.includes('New Arrivals')) {
+      selectCategory('All');
+      showToast('Showing new arrivals');
+    } else if (banner.title.includes('Health')) {
+      selectCategory('Health & Wellness');
+    }
+  };
+
   // ── Toast helper ──────────────────────────────────────────────────────────
   const showToast = (message) => {
     setToastMessage(message);
@@ -254,7 +316,7 @@ export default function LandingPage({ navigation }) {
   const onRefresh = async () => { 
     setRefreshing(true); 
     await loadInitialData(); 
-    await fetchAllProductReviews(); // Refresh reviews as well
+    await fetchAllProductReviews();
     setRefreshing(false); 
   };
 
@@ -316,20 +378,35 @@ export default function LandingPage({ navigation }) {
   const filterAndSortProducts = () => {
     let filtered = [...products];
     if (selectedCategory !== 'All') filtered = filtered.filter(p => p.category === selectedCategory);
+
+    if (selectedPriceRange) {
+      filtered = filtered.filter((product) => {
+        const effectivePrice = product.isOnSale && product.discountedPrice
+          ? parseFloat(product.discountedPrice)
+          : parseFloat(product.price || 0);
+
+        return effectivePrice >= selectedPriceRange.min && effectivePrice <= selectedPriceRange.max;
+      });
+    }
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(p =>
         p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)
       );
     }
-    
-    // Sort products - if sorting by price, use the actual selling price (discounted if on sale)
+
     filtered.sort((a, b) => {
-      const priceA = a.isOnSale && a.discountedPrice ? parseFloat(a.discountedPrice) : parseFloat(a.price || 0);
-      const priceB = b.isOnSale && b.discountedPrice ? parseFloat(b.discountedPrice) : parseFloat(b.price || 0);
+      const priceA = a.isOnSale && a.discountedPrice
+        ? parseFloat(a.discountedPrice)
+        : parseFloat(a.price || 0);
+      const priceB = b.isOnSale && b.discountedPrice
+        ? parseFloat(b.discountedPrice)
+        : parseFloat(b.price || 0);
+
       return sortAscending ? priceA - priceB : priceB - priceA;
     });
-    
+
     setFilteredProducts(filtered);
   };
 
@@ -345,10 +422,8 @@ export default function LandingPage({ navigation }) {
   // UPDATED: Handle add to cart - redirect to Login for guests
   const handleAddToCart = async (product) => {
     try {
-      // Check if user is authenticated
       const authenticated = await checkAuth();
       if (!authenticated) {
-        // Direct navigation to Login without confirmation
         navigation.navigate('Login');
         return;
       }
@@ -372,9 +447,7 @@ export default function LandingPage({ navigation }) {
 
   // UPDATED: Handle buy now - redirect to Login for guests
   const handleBuyNow = (product) => {
-    // Check if user is authenticated
     if (!isAuthenticated) {
-      // Direct navigation to Login without confirmation
       navigation.navigate('Login');
       return;
     }
@@ -391,9 +464,7 @@ export default function LandingPage({ navigation }) {
 
   // UPDATED: Handle wishlist toggle - redirect to Login for guests
   const handleWishlistToggle = async (product, result) => {
-    // Check if user is authenticated
     if (!isAuthenticated) {
-      // Direct navigation to Login without confirmation
       navigation.navigate('Login');
       return;
     }
@@ -401,32 +472,56 @@ export default function LandingPage({ navigation }) {
     if (result && result.message) {
       showToast(result.message);
     }
-    // Force re-render of product cards by updating products state
     setProducts([...products]);
   };
 
   // UPDATED: Handle product press - redirect to Login for guests instead of SingleProduct
   const handleProductPress = (product) => {
     if (!isAuthenticated) {
-      // Direct navigation to Login without confirmation
       navigation.navigate('Login');
       return;
     }
     navigation.navigate('SingleProduct', { productId: product._id });
   };
 
-  const toggleSort = () => setSortAscending(p => !p);
-  const selectCategory = (cat) => { setSelectedCategory(cat); setShowCategories(false); };
+  const toggleCategoryDropdown = () => {
+    setShowCategories((prev) => {
+      const next = !prev;
+      if (next) {
+        setShowPriceRanges(false);
+      }
+      return next;
+    });
+  };
+  const togglePriceRangeDropdown = () => {
+    setShowPriceRanges((prev) => {
+      const next = !prev;
+      if (next) {
+        setShowCategories(false);
+      }
+      return next;
+    });
+  };
+  const toggleSort = () => setSortAscending((prev) => !prev);
+  const selectCategory = (cat) => {
+    setSelectedCategory(cat);
+    setShowCategories(false);
+  };
+  const selectPriceRange = (range) => {
+    setSelectedPriceRange(range);
+    setShowPriceRanges(false);
+  };
+  const clearPriceRange = () => {
+    setSelectedPriceRange(null);
+    setShowPriceRanges(false);
+  };
 
   // ─── Render helpers ───────────────────────────────────────────────────────
   const renderBannerItem = ({ item }) => (
-    <View style={styles.bannerContainer}>
-      <Image source={item} style={styles.bannerImage} />
-    </View>
+    <BannerItem item={item} onPress={() => handleBannerPress(item)} />
   );
 
   const renderProductItem = ({ item }) => {
-    // Determine which price to display
     const displayPrice = item.isOnSale && item.discountedPrice 
       ? parseFloat(item.discountedPrice).toFixed(2) 
       : parseFloat(item.price || 0).toFixed(2);
@@ -435,12 +530,9 @@ export default function LandingPage({ navigation }) {
       ? parseFloat(item.price).toFixed(2) 
       : null;
 
-    // Get product reviews and average rating
     const averageRating = getProductAverageRating(item._id);
     const reviewCount = (productReviews[item._id] || []).length;
     const isLoadingReview = loadingReviews[item._id];
-    
-    // Check if product is out of stock
     const isOutOfStock = item.stock <= 0;
 
     return (
@@ -472,7 +564,7 @@ export default function LandingPage({ navigation }) {
                 <Text style={styles.reviewCount}>({reviewCount})</Text>
               </View>
             ) : isLoadingReview ? (
-              <ActivityIndicator size="small" color="#FF6B6B" style={styles.reviewLoader} />
+              <ActivityIndicator size="small" color="#8B5E3C" style={styles.reviewLoader} />
             ) : null}
             
             {/* Price with discount display */}
@@ -501,11 +593,10 @@ export default function LandingPage({ navigation }) {
           </View>
         </TouchableOpacity>
 
-        {/* Action Buttons - Changes based on stock */}
+        {/* Action Buttons */}
         <View style={styles.actionButtons}>
           {isOutOfStock ? (
             <>
-              {/* Only show Add to Wishlist button for out of stock items if authenticated */}
               {isAuthenticated ? (
                 <TouchableOpacity 
                   style={styles.fullWidthWishlistButton}
@@ -520,7 +611,7 @@ export default function LandingPage({ navigation }) {
                   <Icon 
                     name={isInWishlist(item._id) ? "favorite" : "favorite-border"} 
                     size={20} 
-                    color={isInWishlist(item._id) ? "#FF6B6B" : "#FF6B6B"} 
+                    color="#FF8A8A"
                   />
                   <Text style={styles.wishlistButtonText}>
                     {isInWishlist(item._id) ? 'In Wishlist' : 'Add to Wishlist'}
@@ -531,7 +622,7 @@ export default function LandingPage({ navigation }) {
                   style={styles.fullWidthWishlistButton}
                   onPress={() => navigation.navigate('Login')}
                 >
-                  <Icon name="favorite-border" size={20} color="#FF6B6B" />
+                  <Icon name="favorite-border" size={20} color="#FF8A8A" />
                   <Text style={styles.wishlistButtonText}>Add to Wishlist</Text>
                 </TouchableOpacity>
               )}
@@ -542,7 +633,7 @@ export default function LandingPage({ navigation }) {
                 style={styles.cartButton} 
                 onPress={() => handleAddToCart(item)}
               >
-                <Icon name="add-shopping-cart" size={20} color="#FF6B6B" />
+                <Icon name="add-shopping-cart" size={20} color="#8B5E3C" />
                 <Text style={styles.cartButtonText}>Cart</Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -568,14 +659,31 @@ export default function LandingPage({ navigation }) {
       <Text style={[styles.categoryItemText, selectedCategory === item && styles.selectedCategoryItemText]}>
         {item}
       </Text>
-      {selectedCategory === item && <Icon name="check" size={18} color="#FF6B6B" />}
+      {selectedCategory === item && <Icon name="check" size={18} color="#8B5E3C" />}
     </TouchableOpacity>
   );
+
+  const renderPriceRangeItem = ({ item }) => {
+    const isSelected = selectedPriceRange?.label === item.label;
+
+    return (
+      <TouchableOpacity
+        style={[styles.categoryItem, isSelected && styles.selectedCategoryItem]}
+        onPress={() => selectPriceRange(item)}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.categoryItemText, isSelected && styles.selectedCategoryItemText]}>
+          {item.label}
+        </Text>
+        {isSelected && <Icon name="check" size={18} color="#8B5E3C" />}
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
+        <ActivityIndicator size="large" color="#8B5E3C" />
       </View>
     );
   }
@@ -588,24 +696,33 @@ export default function LandingPage({ navigation }) {
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh}
+              colors={['#8B5E3C']}
+              tintColor="#8B5E3C"
+            />
+          }
         >
+          {/* Search Bar */}
           <View style={styles.searchContainer}>
-            <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+            <Icon name="search" size={20} color="#8B5E3C" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search for pet products..."
-              placeholderTextColor="#999"
+              placeholderTextColor="#B0A090"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Icon name="close" size={20} color="#666" />
+                <Icon name="close" size={20} color="#8B5E3C" />
               </TouchableOpacity>
             )}
           </View>
 
+          {/* Banner Slider with Text Overlay */}
           <View style={styles.bannerWrapper}>
             <FlatList
               ref={flatListRef}
@@ -631,18 +748,61 @@ export default function LandingPage({ navigation }) {
             </View>
           </View>
 
+          {/* Filter Row */}
           <View style={styles.filterContainer}>
-            <TouchableOpacity style={styles.categorySelector} onPress={() => setShowCategories(true)} activeOpacity={0.7}>
-              <Icon name="category" size={20} color="#FF6B6B" />
-              <Text style={styles.categorySelectorText} numberOfLines={1}>{selectedCategory}</Text>
-              <Icon name="arrow-drop-down" size={24} color="#666" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.priceFilterButton} onPress={toggleSort}>
-              <Icon name="attach-money" size={20} color="#FF6B6B" />
-              <Text style={styles.priceFilterText} numberOfLines={1}>Price {sortAscending ? '↑' : '↓'}</Text>
+            <View style={[styles.filterControl, showCategories && styles.activeFilterControl]}>
+              <TouchableOpacity style={styles.categorySelector} onPress={toggleCategoryDropdown} activeOpacity={0.7}>
+                <Icon name="category" size={20} color="#8B5E3C" />
+                <Text style={styles.categorySelectorText} numberOfLines={1}>{selectedCategory}</Text>
+                <Icon name={showCategories ? 'arrow-drop-up' : 'arrow-drop-down'} size={24} color="#8B5E3C" />
+              </TouchableOpacity>
+
+              {showCategories && (
+                <View style={styles.inlineDropdown}>
+                  <Text style={styles.inlineDropdownTitle}>Category</Text>
+                  {CATEGORIES.map((item) => (
+                    <View key={item}>{renderCategoryItem({ item })}</View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            <View style={[styles.filterControl, showPriceRanges && styles.activeFilterControl]}>
+              <TouchableOpacity style={styles.priceFilterButton} onPress={togglePriceRangeDropdown} activeOpacity={0.7}>
+                <Icon name="filter-list" size={20} color="#8B5E3C" />
+                <Text style={styles.priceFilterText} numberOfLines={1}>
+                  {selectedPriceRange ? selectedPriceRange.label : 'Price Range'}
+                </Text>
+                <Icon name={showPriceRanges ? 'arrow-drop-up' : 'arrow-drop-down'} size={24} color="#8B5E3C" />
+              </TouchableOpacity>
+
+              {showPriceRanges && (
+                <View style={styles.inlineDropdown}>
+                  <Text style={styles.inlineDropdownTitle}>Price Range</Text>
+                  <TouchableOpacity
+                    style={[styles.categoryItem, !selectedPriceRange && styles.selectedCategoryItem]}
+                    onPress={clearPriceRange}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.categoryItemText, !selectedPriceRange && styles.selectedCategoryItemText]}>
+                      All Prices
+                    </Text>
+                    {!selectedPriceRange && <Icon name="check" size={18} color="#8B5E3C" />}
+                  </TouchableOpacity>
+                  {PRICE_RANGES.map((item) => (
+                    <View key={item.label}>{renderPriceRangeItem({ item })}</View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            <TouchableOpacity style={styles.sortButton} onPress={toggleSort} activeOpacity={0.7}>
+              <Icon name={sortAscending ? 'south' : 'north'} size={18} color="#8B5E3C" />
+              <Text style={styles.sortButtonText}>Sort</Text>
             </TouchableOpacity>
           </View>
 
+          {/* Products Header */}
           <View style={styles.productsHeader}>
             <Text style={styles.productsTitle}>Featured Products</Text>
             <Text style={styles.productCount}>
@@ -650,6 +810,7 @@ export default function LandingPage({ navigation }) {
             </Text>
           </View>
 
+          {/* Products Grid */}
           {filteredProducts.length > 0 ? (
             <View style={styles.productsGrid}>
               {filteredProducts.map(item => (
@@ -660,7 +821,7 @@ export default function LandingPage({ navigation }) {
             </View>
           ) : (
             <View style={styles.emptyContainer}>
-              <Icon name="search-off" size={60} color="#ccc" />
+              <Icon name="search-off" size={60} color="#C4A882" />
               <Text style={styles.emptyText}>No products found</Text>
               <Text style={styles.emptySubtext}>Try different search or category</Text>
             </View>
@@ -670,237 +831,274 @@ export default function LandingPage({ navigation }) {
         </ScrollView>
 
         <Toast message={toastMessage} opacity={toastOpacity} />
-
-        <Modal visible={showCategories} transparent animationType="fade" onRequestClose={() => setShowCategories(false)}>
-          <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowCategories(false)}>
-            <View style={styles.categoriesDropdown}>
-              <Text style={styles.categoriesTitle}>Select Category</Text>
-              <FlatList
-                data={CATEGORIES}
-                renderItem={renderCategoryItem}
-                keyExtractor={(_, i) => i.toString()}
-                style={styles.categoriesList}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
       </View>
     </GuestDrawer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
+  // ── Layout ────────────────────────────────────────────────────────────────
+  container: { flex: 1, backgroundColor: '#F5E9DA' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5E9DA' },
   scrollView: { flex: 1 },
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
   toast: {
     position: 'absolute', bottom: 20, left: 20, right: 20,
-    backgroundColor: 'rgba(30,30,30,0.88)',
+    backgroundColor: 'rgba(61,36,18,0.92)',
     paddingHorizontal: 18, paddingVertical: 12,
     borderRadius: 12, alignItems: 'center',
     zIndex: 999, elevation: 10,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 6,
+    shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6,
   },
-  toastText: { color: 'white', fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  toastText: { color: '#FFF5EC', fontSize: 14, fontWeight: '600', textAlign: 'center' },
+
+  // ── Search ────────────────────────────────────────────────────────────────
   searchContainer: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'white',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
     marginHorizontal: 16, marginTop: 15, marginBottom: 15,
-    paddingHorizontal: 15, borderRadius: 25, borderWidth: 1, borderColor: '#e0e0e0',
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2,
+    paddingHorizontal: 15, borderRadius: 25,
+    borderWidth: 1, borderColor: '#E0D6C8',
+    elevation: 2, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 3,
   },
   searchIcon: { marginRight: 10 },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: '#333' },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#333333' },
+
+  // ── Banner ────────────────────────────────────────────────────────────────
   bannerWrapper: { height: BANNER_HEIGHT, marginBottom: 15, position: 'relative' },
-  bannerContainer: { width: SCREEN_WIDTH, height: BANNER_HEIGHT },
+  bannerContainer: { width: SCREEN_WIDTH, height: BANNER_HEIGHT, position: 'relative' },
   bannerImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)', // Dark overlay for better text visibility
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  bannerTextContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    maxWidth: '70%',
+  },
+  bannerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginBottom: 4,
+  },
+  bannerSubtitle: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginBottom: 8,
+  },
+  bannerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#8B5E3C',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  bannerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 4,
+  },
   indicatorContainer: {
     position: 'absolute', bottom: 10, width: '100%',
     flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
   },
   indicator: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.6)', marginHorizontal: 4 },
-  activeIndicator: { backgroundColor: '#FF6B6B', width: 12, height: 12 },
-  filterContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginBottom: 20 },
-  categorySelector: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'white',
-    paddingHorizontal: 15, paddingVertical: 10, borderRadius: 25,
-    borderWidth: 1, borderColor: '#e0e0e0', flex: 0.48,
+  activeIndicator: { backgroundColor: '#8B5E3C', width: 12, height: 12 },
+
+  // ── Filters ───────────────────────────────────────────────────────────────
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    zIndex: 20,
   },
-  categorySelectorText: { fontSize: 14, color: '#333', marginHorizontal: 8, flex: 1, fontWeight: '500' },
+  filterControl: {
+    flex: 1,
+    marginRight: 8,
+    position: 'relative',
+  },
+  activeFilterControl: {
+    zIndex: 30,
+  },
+  categorySelector: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 25,
+    borderWidth: 1, borderColor: '#E0D6C8',
+    elevation: 2, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2,
+  },
+  categorySelectorText: { fontSize: 13, color: '#333333', marginHorizontal: 6, flex: 1, fontWeight: '500' },
   priceFilterButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'white', paddingHorizontal: 15, paddingVertical: 10,
-    borderRadius: 25, borderWidth: 1, borderColor: '#e0e0e0', flex: 0.48,
+    backgroundColor: '#FFFFFF', paddingHorizontal: 14, paddingVertical: 10,
+    borderRadius: 25, borderWidth: 1, borderColor: '#E0D6C8',
+    elevation: 2, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2,
   },
-  priceFilterText: { fontSize: 14, color: '#333', marginLeft: 5, fontWeight: '500' },
-  productsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginBottom: 15 },
-  productsTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  productCount: { fontSize: 14, color: '#666' },
+  priceFilterText: { fontSize: 13, color: '#333333', marginHorizontal: 5, flex: 1, fontWeight: '500' },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    elevation: 2,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  sortButtonText: { fontSize: 12, color: '#333333', marginLeft: 4, fontWeight: '600' },
+
+  // ── Products Header ───────────────────────────────────────────────────────
+  productsHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, marginBottom: 12,
+  },
+  productsTitle: { fontSize: 18, fontWeight: 'bold', color: '#8B5E3C' },
+  productCount: { fontSize: 13, color: '#777777' },
+
+  // ── Products Grid ─────────────────────────────────────────────────────────
   productsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12 },
   gridItem: { width: '50%', paddingHorizontal: 4 },
   productCard: {
-    backgroundColor: 'white', borderRadius: 12, marginBottom: 15,
-    elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1, shadowRadius: 4, overflow: 'hidden',
-    position: 'relative',
+    backgroundColor: '#FFFFFF', borderRadius: 14, marginBottom: 14,
+    elevation: 3, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1, shadowRadius: 5, overflow: 'hidden',
+    position: 'relative', borderWidth: 1, borderColor: '#E0D6C8',
   },
+
+  // ── Wishlist Button (card overlay) ────────────────────────────────────────
   wishlistButtonContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    zIndex: 10,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 20,
-    padding: 4,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    position: 'absolute', top: 8, right: 8, zIndex: 10,
+    backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 20, padding: 4,
+    elevation: 5, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1, shadowRadius: 3,
   },
-  imageContainer: { height: 120, backgroundColor: '#f5f5f5' },
+
+  // ── Product Image ─────────────────────────────────────────────────────────
+  imageContainer: { height: 120, backgroundColor: '#FDF7F2' },
   imageCarouselContainer: { width: '100%', height: '100%', position: 'relative' },
   productImage: { width: '100%', height: '100%' },
-  noImage: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' },
+  noImage: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: '#FDF0E6' },
   arrowLeft: {
     position: 'absolute', left: 4, top: '50%', transform: [{ translateY: -16 }],
-    backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: 16, width: 28, height: 28,
+    backgroundColor: 'rgba(139,94,60,0.5)', borderRadius: 16, width: 28, height: 28,
     justifyContent: 'center', alignItems: 'center', zIndex: 10,
   },
   arrowRight: {
     position: 'absolute', right: 4, top: '50%', transform: [{ translateY: -16 }],
-    backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: 16, width: 28, height: 28,
+    backgroundColor: 'rgba(139,94,60,0.5)', borderRadius: 16, width: 28, height: 28,
     justifyContent: 'center', alignItems: 'center', zIndex: 10,
   },
   arrowText: { color: 'white', fontSize: 22, fontWeight: 'bold', lineHeight: 26 },
   imageIndicatorContainer: { position: 'absolute', bottom: 4, width: '100%', flexDirection: 'row', justifyContent: 'center' },
   imageIndicatorDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.5)', marginHorizontal: 2 },
-  imageIndicatorDotActive: { backgroundColor: '#FF6B6B', width: 7, height: 7 },
+  imageIndicatorDotActive: { backgroundColor: '#8B5E3C', width: 7, height: 7 },
+
+  // ── Product Info ──────────────────────────────────────────────────────────
   productInfo: { padding: 10, flex: 1 },
-  productName: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4, height: 40 },
-  productCategory: { fontSize: 12, color: '#666', marginBottom: 6 },
-  productPrice: { fontSize: 16, fontWeight: 'bold', color: '#FF6B6B' },
-  // Review-related styles
-  reviewSummaryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  starRatingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  starsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    fontSize: 11,
-    color: '#666',
-    marginLeft: 4,
-    fontWeight: '500',
-  },
-  reviewCount: {
-    fontSize: 10,
-    color: '#999',
-    marginLeft: 2,
-  },
-  reviewLoader: {
-    marginBottom: 6,
-    alignSelf: 'flex-start',
-  },
-  // Discount-related styles
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    marginTop: 4,
-  },
-  originalPrice: {
-    fontSize: 12,
-    color: '#999',
-    textDecorationLine: 'line-through',
-    marginRight: 6,
-  },
-  discountedPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FF6B6B',
-  },
+  productName: { fontSize: 13, fontWeight: '600', color: '#333333', marginBottom: 3, height: 38 },
+  productCategory: { fontSize: 11, color: '#A3B18A', marginBottom: 5, fontWeight: '500' },
+  productPrice: { fontSize: 15, fontWeight: 'bold', color: '#8B5E3C' },
+
+  // ── Reviews ───────────────────────────────────────────────────────────────
+  reviewSummaryContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  starRatingContainer: { flexDirection: 'row', alignItems: 'center' },
+  starsRow: { flexDirection: 'row', alignItems: 'center' },
+  ratingText: { fontSize: 11, color: '#777777', marginLeft: 3, fontWeight: '500' },
+  reviewCount: { fontSize: 10, color: '#B0A090', marginLeft: 2 },
+  reviewLoader: { marginBottom: 5, alignSelf: 'flex-start' },
+
+  // ── Price / Discount ──────────────────────────────────────────────────────
+  priceContainer: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 3 },
+  originalPrice: { fontSize: 11, color: '#B0A090', textDecorationLine: 'line-through', marginRight: 5 },
+  discountedPrice: { fontSize: 15, fontWeight: 'bold', color: '#8B5E3C' },
   discountBadge: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginRight: 6,
+    backgroundColor: '#FF8A8A', paddingHorizontal: 5, paddingVertical: 2,
+    borderRadius: 4, marginRight: 5,
   },
-  discountBadgeText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  // Out of stock styles
+  discountBadgeText: { color: 'white', fontSize: 9, fontWeight: 'bold' },
+
+  // ── Out of Stock ──────────────────────────────────────────────────────────
   outOfStockBadge: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginTop: 4,
+    backgroundColor: '#F0EAE0', paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: 4, alignSelf: 'flex-start', marginTop: 4,
+    borderWidth: 1, borderColor: '#E0D6C8',
   },
-  outOfStockText: {
-    fontSize: 10,
-    color: '#999',
-    fontWeight: '500',
+  outOfStockText: { fontSize: 10, color: '#B0A090', fontWeight: '500' },
+
+  // ── Action Buttons ────────────────────────────────────────────────────────
+  actionButtons: {
+    flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#F0EAE0',
+    paddingHorizontal: 8, paddingVertical: 8,
   },
-  actionButtons: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingHorizontal: 8, paddingVertical: 8 },
   cartButton: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#fff0f0', paddingVertical: 8, borderRadius: 8, marginRight: 4,
+    backgroundColor: '#FDF0E6', paddingVertical: 8, borderRadius: 8, marginRight: 4,
+    borderWidth: 1, borderColor: '#E0D6C8',
   },
-  cartButtonText: { fontSize: 12, fontWeight: '600', color: '#FF6B6B', marginLeft: 4 },
+  cartButtonText: { fontSize: 12, fontWeight: '600', color: '#8B5E3C', marginLeft: 4 },
   buyButton: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FF6B6B', paddingVertical: 8, borderRadius: 8, marginLeft: 4,
+    backgroundColor: '#8B5E3C', paddingVertical: 8, borderRadius: 8, marginLeft: 4,
+    elevation: 2, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3,
   },
   buyButtonText: { fontSize: 12, fontWeight: '600', color: 'white', marginLeft: 4 },
-  // Full width wishlist button for out of stock items
   fullWidthWishlistButton: {
-    flex: 1,
-    backgroundColor: '#fff0f0',
-    paddingVertical: 8,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1, backgroundColor: '#FDF0E6', paddingVertical: 8, borderRadius: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: '#E0D6C8',
   },
-  wishlistButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FF6B6B',
-    marginLeft: 4,
-  },
-  disabledButton: {
-    backgroundColor: '#f5f5f5',
-    flex: 1,
-    marginRight: 4,
-  },
-  disabledText: {
-    color: '#999',
-  },
+  wishlistButtonText: { fontSize: 12, fontWeight: '600', color: '#FF8A8A', marginLeft: 4 },
+  disabledButton: { backgroundColor: '#F5F0EB', flex: 1, marginRight: 4 },
+  disabledText: { color: '#B0A090' },
+
+  // ── Empty State ───────────────────────────────────────────────────────────
   emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, paddingHorizontal: 20 },
-  emptyText: { fontSize: 18, fontWeight: 'bold', color: '#666', marginTop: 15, marginBottom: 5 },
-  emptySubtext: { fontSize: 14, color: '#999', textAlign: 'center' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-start', paddingTop: 120 },
-  categoriesDropdown: {
-    backgroundColor: 'white', borderRadius: 12, borderWidth: 1, borderColor: '#e0e0e0',
-    marginHorizontal: 20, maxHeight: 400,
-    elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84,
+  emptyText: { fontSize: 18, fontWeight: 'bold', color: '#8B5E3C', marginTop: 15, marginBottom: 5 },
+  emptySubtext: { fontSize: 14, color: '#B0A090', textAlign: 'center' },
+
+  // ── Inline Dropdowns ──────────────────────────────────────────────────────
+  inlineDropdown: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
+    position: 'absolute',
+    top: 52,
+    left: 0,
+    right: 0,
+    overflow: 'hidden',
+    elevation: 6, shadowColor: '#8B5E3C', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 6,
   },
-  categoriesTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  categoriesList: { maxHeight: 350 },
-  categoryItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  selectedCategoryItem: { backgroundColor: '#fff0f0' },
-  categoryItemText: { fontSize: 16, color: '#333' },
-  selectedCategoryItemText: { color: '#FF6B6B', fontWeight: '600' },
+  inlineDropdownTitle: {
+    fontSize: 14, fontWeight: 'bold', color: '#8B5E3C',
+    paddingHorizontal: 14, paddingTop: 12, paddingBottom: 10,
+    borderBottomWidth: 1, borderBottomColor: '#F0EAE0',
+  },
+  categoryItem: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 13, paddingHorizontal: 16,
+    borderBottomWidth: 1, borderBottomColor: '#F0EAE0',
+  },
+  selectedCategoryItem: { backgroundColor: '#FDF0E6' },
+  categoryItemText: { fontSize: 15, color: '#333333' },
+  selectedCategoryItemText: { color: '#8B5E3C', fontWeight: '600' },
 });

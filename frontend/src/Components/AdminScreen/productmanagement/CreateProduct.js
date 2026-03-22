@@ -64,6 +64,19 @@ const CreateProductContent = React.memo(({
 
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButtonHeader} onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={22} color="#7A4B2A" />
+        </TouchableOpacity>
+        <View style={styles.headerCopy}>
+          <Text style={styles.headerEyebrow}>Admin</Text>
+          <Text style={styles.headerTitle}>Create Product</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Icon name="inventory-2" size={18} color="#7A4B2A" />
+        </View>
+      </View>
+
       <View style={styles.form}>
         <Text style={styles.label}>Product Name *</Text>
         <TextInput
@@ -483,36 +496,92 @@ const styles = StyleSheet.create({
   // ... all your existing styles from the original file
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  backButtonHeader: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   form: {
-    padding: 20,
+    margin: 16,
+    padding: 22,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   label: {
     fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#2c3e50',
+    fontWeight: '700',
+    marginBottom: 7,
+    color: '#5C3B28',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: '#DDC8B5',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     marginBottom: 15,
     fontSize: 16,
+    color: '#3E2A1F',
   },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
   pickerButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: '#DDC8B5',
+    borderRadius: 14,
+    padding: 14,
     marginBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -524,25 +593,25 @@ const styles = StyleSheet.create({
   },
   pickerTextSelected: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   imageSection: {
     marginBottom: 15,
   },
   imageUploadButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFF8F2',
     borderWidth: 2,
-    borderColor: '#3498db',
+    borderColor: '#B88B65',
     borderStyle: 'dashed',
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 15,
     alignItems: 'center',
     marginBottom: 15,
   },
   imageUploadText: {
-    color: '#3498db',
+    color: '#8B5E3C',
     marginTop: 5,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   imageList: {
     paddingVertical: 10,
@@ -560,7 +629,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -5,
     right: -5,
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -569,7 +638,7 @@ const styles = StyleSheet.create({
   },
   imageCount: {
     fontSize: 12,
-    color: '#666',
+    color: '#7C6555',
     textAlign: 'center',
     marginTop: 5,
     marginBottom: 15,
@@ -581,29 +650,31 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   cancelButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#EEE2D6',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginRight: 10,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D7B99A',
   },
   cancelButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#7A4B2A',
+    fontWeight: '800',
     fontSize: 16,
   },
   submitButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginLeft: 10,
     alignItems: 'center',
   },
   submitButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '800',
     fontSize: 16,
   },
   modalOverlay: {
@@ -612,7 +683,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFDF9',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -620,10 +691,10 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 15,
     textAlign: 'center',
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   categoryItem: {
     padding: 15,
@@ -631,11 +702,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   categoryItemSelected: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
   },
   categoryText: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   categoryTextSelected: {
     color: 'white',
@@ -647,14 +718,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   supplierItemSelected: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
   },
   supplierInfo: {
     flex: 1,
   },
   supplierText: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#3E2A1F',
     fontWeight: '500',
   },
   supplierTextSelected: {
@@ -663,7 +734,7 @@ const styles = StyleSheet.create({
   },
   supplierEmail: {
     fontSize: 12,
-    color: '#666',
+    color: '#7C6555',
     marginTop: 2,
   },
   supplierEmailSelected: {
@@ -676,20 +747,20 @@ const styles = StyleSheet.create({
   },
   emptySuppliersText: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E7665',
     textAlign: 'center',
     fontStyle: 'italic',
   },
   modalCloseButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#EEE2D6',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     alignItems: 'center',
     marginTop: 10,
   },
   modalCloseText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#7A4B2A',
+    fontWeight: '800',
     fontSize: 16,
   },
 });

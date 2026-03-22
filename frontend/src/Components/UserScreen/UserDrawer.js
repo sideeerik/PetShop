@@ -13,7 +13,7 @@ import {
   StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUser, logout } from '../../utils/helper';
 
@@ -98,13 +98,7 @@ const UserDrawer = ({ children }) => {
           text: "Logout",
           onPress: async () => {
             try {
-              await logout();
-              navigation.getParent()?.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                })
-              );
+              await logout(navigation);
             } catch (error) {
               console.error('Logout error:', error);
               Alert.alert('Error', 'Failed to logout. Please try again.');
@@ -154,7 +148,7 @@ const UserDrawer = ({ children }) => {
       label: 'Profile',
       icon: 'person-outline',
       activeIcon: 'person',
-      color: '#4A6FA5',
+      color: '#8B5E3C',
       screen: 'Profile'
     },
     {
@@ -162,16 +156,16 @@ const UserDrawer = ({ children }) => {
       label: 'My Orders',
       icon: 'receipt-outline',
       activeIcon: 'receipt',
-      color: '#4A6FA5',
+      color: '#8B5E3C',
       screen: 'Orders'  
     },
     { 
       id: 'chatbot',  // ✅ Added missing id
       label: 'Chatbot',
-      icon: 'chat-outline',      // Use outline version to match others
-      activeIcon: 'chat',        // Add active icon
+      icon: 'hardware-chip-outline',
+      activeIcon: 'hardware-chip',
       screen: 'Chatbot', 
-      color: '#4CAF50'   
+      color: '#A3B18A'   
     },  // ✅ Added comma
     {
       id: 'logout',
@@ -229,11 +223,11 @@ const UserDrawer = ({ children }) => {
         accessibilityRole="tab"
         accessibilityState={{ selected: isActive }}
       >
-        <View style={styles.iconContainer}>
+        <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
           <Ionicons
             name={isActive ? tab.activeIcon : tab.icon}
-            size={24}
-            color={isActive ? '#FF6B6B' : '#666'}
+            size={22}
+            color={isActive ? '#8B5E3C' : '#B0A090'}
           />
         </View>
         <Text style={[styles.tabLabel, isActive && styles.activeTabLabel]}>
@@ -287,7 +281,7 @@ const UserDrawer = ({ children }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <StatusBar backgroundColor="#fff" barStyle="dark-content" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       
       {/* Main Content */}
       <View style={styles.content}>
@@ -369,20 +363,25 @@ const UserDrawer = ({ children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5E9DA',
   },
   childContent: {
     flex: 1,
   },
   tabBarContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
     paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+    elevation: 6,
+    shadowColor: '#8B5E3C',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
   },
   tabBar: {
     flexDirection: 'row',
@@ -397,21 +396,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    position: 'relative',
+    width: 38,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+  },
+  activeIconContainer: {
+    backgroundColor: '#FDF0E6',
   },
   tabLabel: {
     fontSize: 11,
-    marginTop: 4,
-    color: '#666',
+    marginTop: 3,
+    color: '#B0A090',
     fontWeight: '500',
   },
   activeTabLabel: {
-    color: '#FF6B6B',
-    fontWeight: '600',
+    color: '#8B5E3C',
+    fontWeight: '700',
   },
   drawerOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(61,36,18,0.45)',
   },
   drawerContainer: {
     position: 'absolute',
@@ -419,16 +425,18 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 280,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    borderRightWidth: 1,
+    borderRightColor: '#E0D6C8',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
+        shadowColor: '#8B5E3C',
+        shadowOffset: { width: 3, height: 0 },
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 8,
+        elevation: 10,
       },
     }),
   },
@@ -437,8 +445,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     padding: 20,
+    backgroundColor: '#FDF7F2',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#E0D6C8',
   },
   userInfo: {
     flexDirection: 'row',
@@ -449,13 +458,15 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#8B5E3C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    borderWidth: 2,
+    borderColor: '#E0D6C8',
   },
   avatarText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -464,20 +475,24 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#333333',
     marginBottom: 2,
   },
   userEmail: {
     fontSize: 12,
-    color: '#999',
+    color: '#B0A090',
   },
   closeButton: {
-    padding: 4,
+    backgroundColor: '#F0EAE0',
+    borderRadius: 8,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#E0D6C8',
   },
   drawerItems: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: 10,
   },
   drawerItem: {
     flexDirection: 'row',
@@ -485,30 +500,32 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: '#F5EDE4',
   },
   drawerIconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 10,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
   },
   drawerItemText: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
   },
   drawerFooter: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#E0D6C8',
+    backgroundColor: '#FDF7F2',
   },
   appVersion: {
     fontSize: 12,
-    color: '#999',
+    color: '#C4A882',
     textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

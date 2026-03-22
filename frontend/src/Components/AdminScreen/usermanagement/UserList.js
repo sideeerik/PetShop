@@ -146,7 +146,7 @@ const UserListScreen = ({ navigation }) => {
           <View style={styles.avatarContainer}>
             <View style={[
               styles.avatar,
-              { backgroundColor: item.role === 'admin' ? '#6200ee' : '#2196F3' }
+              { backgroundColor: item.role === 'admin' ? '#8B5E3C' : '#B88B65' }
             ]}>
               <Text style={styles.avatarText}>
                 {item.name?.charAt(0).toUpperCase() || 'U'}
@@ -224,8 +224,11 @@ const UserListScreen = ({ navigation }) => {
     <View style={styles.contentContainer}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Icon name="people" size={28} color="#6200ee" />
+          <View style={styles.headerIconWrap}>
+            <Icon name="people" size={26} color="#7A4B2A" />
+          </View>
           <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerEyebrow}>Admin</Text>
             <Text style={styles.headerTitle}>User Management</Text>
             <Text style={styles.headerSubtitle}>
               {users.length} {users.length === 1 ? 'user' : 'users'} total
@@ -313,40 +316,51 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F6EDE3',
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F6EDE3',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDF7F1',
     paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 15,
+    paddingTop: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderBottomColor: '#E8D6C3',
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  headerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerTitleContainer: {
     marginLeft: 15,
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2D3436',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#636E72',
+    color: '#7C6555',
     marginTop: 2,
   },
   listContainer: {
@@ -355,17 +369,17 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
     padding: 20,
     marginBottom: 12,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     borderWidth: 1,
-    borderColor: '#F1F2F6',
+    borderColor: '#E7D8C8',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -397,14 +411,14 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#2D3436',
+    fontWeight: '800',
+    color: '#3E2A1F',
     flex: 1,
   },
   adminBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -418,7 +432,7 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#636E72',
+    color: '#7C6555',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -426,7 +440,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F1F2F6',
+    borderTopColor: '#EFE0D2',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -445,8 +459,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    color: '#636E72',
-    fontWeight: '500',
+    color: '#7C6555',
+    fontWeight: '600',
   },
   toggleButton: {
     flexDirection: 'row',
@@ -474,7 +488,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 16,
   },
   editButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#B88B65',
   },
   deleteButton: {
     backgroundColor: '#f44336',
@@ -494,24 +508,24 @@ const styles = StyleSheet.create({
   },
   emptyIconContainer: {
     padding: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F3E3D3',
     borderRadius: 50,
     marginBottom: 20,
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2D3436',
+    fontWeight: '800',
+    color: '#3E2A1F',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#636E72',
+    color: '#7C6555',
     textAlign: 'center',
     marginBottom: 24,
   },
   emptyButton: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
@@ -543,13 +557,13 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   trashFab: {
-    backgroundColor: '#f44336',
+    backgroundColor: '#C95E52',
     paddingHorizontal: 20,
     paddingVertical: 12,
     minWidth: 100,
   },
   createFab: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
     paddingHorizontal: 20,
     paddingVertical: 12,
     minWidth: 100,

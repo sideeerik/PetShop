@@ -76,6 +76,19 @@ export default function ViewProductScreen({ navigation, route }) {
 
     return (
       <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.headerBackButton} onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" size={22} color="#7A4B2A" />
+          </TouchableOpacity>
+          <View style={styles.headerCopy}>
+            <Text style={styles.headerEyebrow}>Admin</Text>
+            <Text style={styles.headerTitle}>Product Details</Text>
+          </View>
+          <View style={styles.headerBadge}>
+            <Icon name="inventory" size={18} color="#7A4B2A" />
+          </View>
+        </View>
+
         {product.images && product.images.length > 0 && (
           <View style={styles.imageContainer}>
             <Image
@@ -213,8 +226,8 @@ export default function ViewProductScreen({ navigation, route }) {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Icon name="arrow-back" size={20} color="white" />
-            <Text style={styles.buttonText}>Back to List</Text>
+            <Icon name="arrow-back" size={20} color="#7A4B2A" />
+            <Text style={styles.backButtonText}>Back to List</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -254,14 +267,13 @@ export default function ViewProductScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 15,
+    backgroundColor: '#F6EDE3',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
     paddingHorizontal: 20,
   },
   errorTitle: {
@@ -280,7 +292,7 @@ const styles = StyleSheet.create({
   goBackButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
     borderRadius: 25,
   },
   goBackButtonText: {
@@ -288,12 +300,60 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  imageContainer: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    marginBottom: 15,
-    padding: 10,
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8D6C3',
+  },
+  headerBackButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageContainer: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
+    marginHorizontal: 15,
+    marginTop: 15,
+    marginBottom: 15,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   mainImage: {
     width: '100%',
@@ -314,24 +374,27 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedThumbnail: {
-    borderColor: '#3498db',
+    borderColor: '#8B5E3C',
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+    backgroundColor: '#FFFDF9',
+    borderRadius: 22,
     padding: 20,
+    marginHorizontal: 15,
     marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    elevation: 3,
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 15,
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   priceContainer: {
     flexDirection: 'row',
@@ -347,7 +410,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#27ae60',
+    color: '#8B5E3C',
   },
   originalPrice: {
     fontSize: 18,
@@ -358,10 +421,10 @@ const styles = StyleSheet.create({
   discountedPrice: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#27ae60',
+    color: '#8B5E3C',
   },
   discountBadge: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#C95E52',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
@@ -374,7 +437,7 @@ const styles = StyleSheet.create({
   discountPeriodContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#F7E3DE',
     padding: 10,
     borderRadius: 8,
     marginBottom: 15,
@@ -382,7 +445,7 @@ const styles = StyleSheet.create({
   discountPeriodText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#e74c3c',
+    color: '#C95E52',
     fontWeight: '600',
   },
   ratingContainer: {
@@ -398,7 +461,7 @@ const styles = StyleSheet.create({
   },
   reviewCount: {
     fontSize: 14,
-    color: '#666',
+    color: '#7C6555',
   },
   infoRow: {
     flexDirection: 'row',
@@ -406,16 +469,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#EFE0D2',
   },
   label: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: 'bold',
+    color: '#7C6555',
+    fontWeight: '700',
   },
   value: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#5C3B28',
   },
   inStock: {
     color: '#27ae60',
@@ -429,29 +492,31 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#EFE0D2',
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 10,
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   description: {
     fontSize: 16,
-    color: '#34495e',
+    color: '#5C3B28',
     lineHeight: 24,
   },
   text: {
     fontSize: 14,
-    color: '#34495e',
+    color: '#5C3B28',
     marginBottom: 5,
   },
   reviewItem: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F9F2EB',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 14,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -462,7 +527,7 @@ const styles = StyleSheet.create({
   reviewerName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#3E2A1F',
   },
   reviewRating: {
     flexDirection: 'row',
@@ -487,31 +552,39 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginHorizontal: 15,
     marginBottom: 30,
   },
   editButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#8B5E3C',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginRight: 5,
   },
   backButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: '#EEE2D6',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 1,
     marginLeft: 5,
+    borderWidth: 1,
+    borderColor: '#D7B99A',
   },
   buttonText: {
     color: 'white',
     marginLeft: 5,
-    fontWeight: 'bold',
+    fontWeight: '800',
+  },
+  backButtonText: {
+    color: '#7A4B2A',
+    marginLeft: 5,
+    fontWeight: '800',
   },
 });

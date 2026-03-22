@@ -47,11 +47,16 @@ const CreateUserContent = React.memo(({
           bounces={false}
         >
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon name="arrow-back" size={28} color="#333" />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="arrow-back" size={24} color="#7A4B2A" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Create New User</Text>
-            <View style={{ width: 28 }} />
+            <View style={styles.headerCopy}>
+              <Text style={styles.headerEyebrow}>Admin</Text>
+              <Text style={styles.headerTitle}>Create New User</Text>
+            </View>
+            <View style={styles.headerBadge}>
+              <Icon name="person-add" size={18} color="#7A4B2A" />
+            </View>
           </View>
 
           <View style={styles.formContainer}>
@@ -155,7 +160,7 @@ const CreateUserContent = React.memo(({
             </View>
 
             <View style={styles.infoBox}>
-              <Icon name="info" size={20} color="#2196F3" />
+              <Icon name="info" size={20} color="#7A4B2A" />
               <Text style={styles.infoText}>
                 New users will be automatically verified upon creation.
               </Text>
@@ -305,68 +310,110 @@ const CreateUserScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F6EDE3',
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingBottom: 24,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#FDF7F1',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E8D6C3',
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8D6C3',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  headerCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  headerEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A87B54',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#3E2A1F',
+  },
+  headerBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3E3D3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   formContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 16,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    padding: 22,
+    backgroundColor: '#FFFDF9',
+    marginHorizontal: 16,
+    marginTop: 18,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E7D8C8',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   label: {
     fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#2c3e50',
+    fontWeight: '700',
+    marginBottom: 7,
+    color: '#5C3B28',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 5,
+    borderColor: '#DDC8B5',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    marginBottom: 6,
     fontSize: 16,
-    color: '#333',
+    color: '#3E2A1F',
   },
   inputError: {
-    borderColor: '#e74c3c',
+    borderColor: '#C95E52',
   },
   errorText: {
-    color: '#e74c3c',
+    color: '#C95E52',
     fontSize: 12,
-    marginBottom: 10,
+    marginBottom: 12,
+    marginLeft: 2,
   },
   roleContainer: {
     marginBottom: 24,
+    marginTop: 6,
   },
   roleLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    fontWeight: '700',
+    color: '#5C3B28',
+    marginBottom: 14,
   },
   roleButtons: {
     flexDirection: 'row',
@@ -374,52 +421,61 @@ const styles = StyleSheet.create({
   },
   roleButton: {
     borderWidth: 1,
-    borderColor: '#6200ee',
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderColor: '#D7B99A',
+    borderRadius: 16,
+    paddingVertical: 14,
     width: '48%',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   roleButtonActive: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#8B5E3C',
+    borderColor: '#8B5E3C',
   },
   roleButtonText: {
-    color: '#6200ee',
-    fontWeight: '500',
+    color: '#7A4B2A',
+    fontWeight: '700',
     fontSize: 16,
   },
   roleButtonTextActive: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   infoBox: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E3F2FD',
-    padding: 12,
-    borderRadius: 8,
+    alignItems: 'flex-start',
+    backgroundColor: '#F5E7D7',
+    padding: 14,
+    borderRadius: 16,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#E5CBAF',
   },
   infoText: {
     flex: 1,
     marginLeft: 12,
     fontSize: 14,
-    color: '#2196F3',
+    lineHeight: 20,
+    color: '#7A4B2A',
   },
   submitButton: {
-    backgroundColor: '#6200ee',
-    borderRadius: 8,
-    paddingVertical: 14,
+    backgroundColor: '#8B5E3C',
+    borderRadius: 16,
+    paddingVertical: 15,
     alignItems: 'center',
+    shadowColor: '#7A4B2A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 3,
   },
   submitButtonDisabled: {
-    backgroundColor: '#9e9e9e',
+    backgroundColor: '#BFA994',
     opacity: 0.7,
   },
   submitButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '800',
     fontSize: 16,
   },
 });
