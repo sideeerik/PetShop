@@ -4,6 +4,7 @@ const Supplier = require('../models/Supplier');
 const Review = require('../models/Review'); 
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/Cloudinary');
 const { sendPushNotification } = require('../utils/pushNotification');
+const { logNotificationRecipients } = require('../utils/notificationRecipientsLogger');
 const User = require('../models/User');
 
 // Helper to delete local temp file if exists
@@ -63,6 +64,11 @@ const checkAndSendRestockNotifications = async (productId, oldStock, newStock) =
                 productName: product.name,
                 timestamp: new Date().toISOString()
             };
+
+            logNotificationRecipients(
+                `WISHLIST_RESTOCK for product ${product.name} (${productId})`,
+                wishlists.map(wishlist => wishlist.user)
+            );
             
             // Send to each user
             let successCount = 0;
@@ -424,6 +430,10 @@ exports.updateProduct = async (req, res, next) => {
         }).select('+pushToken');
         
         console.log(`Found ${users.length} users with push tokens`);
+        logNotificationRecipients(
+          `DISCOUNT notification for product ${product.name} (${product._id})`,
+          users
+        );
 
         // Prepare notification message
         const notificationTitle = '🎉 New Discount Alert!';

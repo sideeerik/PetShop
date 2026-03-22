@@ -4,6 +4,7 @@ const sendEmail = require("../utils/Mailer");
 const { generateOrderEmailTemplate } = require("../utils/emailTemplate");
 const { generateReceiptPDF } = require("../utils/pdfGenerator");
 const { sendPushNotification } = require("../utils/pushNotification");
+const { logNotificationRecipients } = require("../utils/notificationRecipientsLogger");
 
 const ORDER_STATUS_TRANSITIONS = {
   Processing: ["Accepted", "Cancelled"],
@@ -91,6 +92,8 @@ exports.updateOrderStatus = async (req, res) => {
       hasPushToken: !!order.user?.pushToken,
       pushTokenValue: order.user?.pushToken ? `${order.user.pushToken.substring(0, 20)}...` : 'none'
     });
+
+    logNotificationRecipients(`ORDER_STATUS_UPDATE for order #${order._id}`, order.user);
 
     order.orderStatus = status;
     
